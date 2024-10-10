@@ -1,14 +1,15 @@
 package com.bwf.core.io;
 
-
-
 import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URL;
 import java.nio.channels.Channels;
 import java.nio.channels.ReadableByteChannel;
-
+/**
+ * @Author bjweijiannan
+ * @description
+ */
 public interface Resource extends InputStreamSource {
     boolean exists();
 

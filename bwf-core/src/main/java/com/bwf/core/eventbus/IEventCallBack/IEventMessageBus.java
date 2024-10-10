@@ -1,7 +1,10 @@
 package com.bwf.core.eventbus.IEventCallBack;
 
 import com.bwf.core.eventbus.AppletEventMessageBus;
-
+/**
+ * @Author bjweijiannan
+ * @description
+ */
 public interface IEventMessageBus {
     AppletEventMessageBus emit(String eventName, Object args);
     AppletEventMessageBus emit(boolean acync, String eventName, Object args);

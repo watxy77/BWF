@@ -1,10 +1,11 @@
 package com.bwf.core.bootstrap.utils;
 
-import com.bwf.core.bootstrap.utils.ClassUtils;
-
 import java.lang.management.ManagementFactory;
 import java.time.Duration;
-
+/**
+ * @Author bjweijiannan
+ * @description
+ */
 public class StartupInfoLogger {
     private final Class<?> sourceClass;
     public StartupInfoLogger(Class<?> sourceClass) {

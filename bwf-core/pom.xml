@@ -23,6 +23,12 @@
         <jython.version>2.7.3</jython.version>
         <luaj.version>3.0.1</luaj.version>
         <kotlin.version>1.9.23</kotlin.version>
+        <hutool.version>5.8.26</hutool.version>
+        <transmittable-thread-local.version>2.12.3</transmittable-thread-local.version>
+        <bytebuddy.version>1.14.10</bytebuddy.version>
+        <aspectjweaver.version>1.8.13</aspectjweaver.version>
+        <netty.version>4.1.114.Final</netty.version>
+        <janino.version>3.1.12</janino.version>
     </properties>
     <dependencies>
         <dependency>
@@ -36,6 +42,11 @@
             <artifactId>groovy-all</artifactId>
             <version>${groovy.version}</version>
             <type>pom</type>
+        </dependency>
+        <dependency>
+            <groupId>org.codehaus.groovy</groupId>
+            <artifactId>groovy-jsr223</artifactId>
+            <version>${groovy.version}</version>
         </dependency>
         <dependency>
             <groupId>com.googlecode.aviator</groupId>
@@ -67,6 +78,46 @@
             <artifactId>kotlin-scripting-jsr223</artifactId>
             <version>${kotlin.version}</version>
         </dependency>
+
+
+        <dependency>
+            <groupId>cn.hutool</groupId>
+            <artifactId>hutool-core</artifactId>
+            <version>${hutool.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>cn.hutool</groupId>
+            <artifactId>hutool-crypto</artifactId>
+            <version>${hutool.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>net.bytebuddy</groupId>
+            <artifactId>byte-buddy</artifactId>
+            <version>${bytebuddy.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.aspectj</groupId>
+            <artifactId>aspectjweaver</artifactId>
+            <version>${aspectjweaver.version}</version>
+            <scope>provided</scope>
+            <optional>true</optional>
+        </dependency>
+        <dependency>
+            <groupId>com.alibaba</groupId>
+            <artifactId>transmittable-thread-local</artifactId>
+            <version>${transmittable-thread-local.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.codehaus.janino</groupId>
+            <artifactId>janino</artifactId>
+            <version>${janino.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.netty</groupId>
+            <artifactId>netty-all</artifactId>
+            <version>${netty.version}</version>
+        </dependency>
+
 
     </dependencies>
 </project>

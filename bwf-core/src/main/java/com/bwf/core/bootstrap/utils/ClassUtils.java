@@ -1,5 +1,8 @@
 package com.bwf.core.bootstrap.utils;
-
+/**
+ * @Author bjweijiannan
+ * @description
+ */
 public abstract class ClassUtils {
     public static String getShortName(Class<?> clazz) {
         return getShortName(getQualifiedName(clazz));

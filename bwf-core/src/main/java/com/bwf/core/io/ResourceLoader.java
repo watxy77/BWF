@@ -1,5 +1,8 @@
 package com.bwf.core.io;
-
+/**
+ * @Author bjweijiannan
+ * @description
+ */
 public interface ResourceLoader {
     String CLASSPATH_URL_PREFIX = "classpath:";
 

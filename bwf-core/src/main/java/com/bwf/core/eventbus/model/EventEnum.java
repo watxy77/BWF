@@ -1,5 +1,8 @@
 package com.bwf.core.eventbus.model;
-
+/**
+ * @Author bjweijiannan
+ * @description
+ */
 public enum EventEnum {
     RULE_HANDLE_SUB("RULE_HANDLE_SUB"),
     DATA_HANDLE_SUB("DATA_HANDLE_SUB"),
