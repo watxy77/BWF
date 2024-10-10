@@ -33,6 +33,8 @@
         <netty.version>4.1.114.Final</netty.version>
         <janino.version>3.1.12</janino.version>
         <commons-beanutils.version>1.9.4</commons-beanutils.version>
+        <javax.servlet.version>3.1.0</javax.servlet.version>
+
     </properties>
     <dependencies>
 
@@ -120,6 +122,13 @@
             <groupId>commons-beanutils</groupId>
             <artifactId>commons-beanutils</artifactId>
             <version>${commons-beanutils.version}</version>
+        </dependency>
+        <!-- https://mvnrepository.com/artifact/javax.servlet/javax.servlet-api -->
+        <dependency>
+            <groupId>javax.servlet</groupId>
+            <artifactId>javax.servlet-api</artifactId>
+            <version>${javax.servlet.version}</version>
+            <scope>provided</scope>
         </dependency>
 
     </dependencies>
