@@ -1,11 +1,17 @@
 package com.bwf.core.bootstrap.utils;
 
+
+
+
+import lombok.extern.slf4j.Slf4j;
+
 import java.lang.management.ManagementFactory;
 import java.time.Duration;
 /**
  * @Author bjweijiannan
  * @description
  */
+@Slf4j
 public class StartupInfoLogger {
     private final Class<?> sourceClass;
     public StartupInfoLogger(Class<?> sourceClass) {
@@ -13,10 +19,10 @@ public class StartupInfoLogger {
     }
 
     public void logStarted(Duration timeTakenToStartup) {
-        System.out.println(this.getStartedMessage(timeTakenToStartup));
+        log.info(this.getStartedMessage(timeTakenToStartup).toString());
     }
     public void logPlugin(int apiPluginCount, int cachePluginCount, Duration timeTakenToStartup) {
-        System.out.println(this.lodePluginMessage(apiPluginCount, cachePluginCount, timeTakenToStartup));
+        log.info(this.lodePluginMessage(apiPluginCount, cachePluginCount, timeTakenToStartup).toString());
     }
 
     private CharSequence getStartedMessage(Duration timeTakenToStartup) {
