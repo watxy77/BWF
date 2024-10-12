@@ -1,4 +1,4 @@
-package com.bwf.common.annotation.bootstrap;
+package com.bwf.common.annotation.bootstrap.annotation;
 
 import javax.annotation.Nonnull;
 import javax.annotation.meta.TypeQualifierNickname;

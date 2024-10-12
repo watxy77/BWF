@@ -1,4 +1,4 @@
-package com.bwf.core.bootstrap;
+package com.bwf.common.annotation;
 
 public interface Lifecycle {
     void start();

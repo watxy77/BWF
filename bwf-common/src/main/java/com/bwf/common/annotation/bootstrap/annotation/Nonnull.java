@@ -1,4 +1,4 @@
-package com.bwf.common.annotation.bootstrap;
+package com.bwf.common.annotation.bootstrap.annotation;
 
 import javax.annotation.meta.TypeQualifier;
 import javax.annotation.meta.TypeQualifierValidator;
