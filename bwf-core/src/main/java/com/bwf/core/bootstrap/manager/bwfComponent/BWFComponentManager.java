@@ -18,7 +18,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import static org.python.bouncycastle.asn1.x500.style.RFC4519Style.o;
 
 public class BWFComponentManager implements BWFAnnotationManager {
-
     private static BWFComponentManager instance;
     private ConcurrentHashMap<String,String > lostBeanMaps = new ConcurrentHashMap<>();
     private ConcurrentHashMap<String,Object> singletonBWFComponentMaps = new ConcurrentHashMap<>();
@@ -162,6 +161,15 @@ public class BWFComponentManager implements BWFAnnotationManager {
                 }
             }
         }
+    }
+
+    public void injectBWFComponentBean(String className, Object object){
+        BWFComponentBeanDefinition bwfBeanDefinition = new BWFComponentBeanDefinition();
+        bwfBeanDefinition.setClassName(className);
+        bwfBeanDefinition.setClazz(object.getClass());
+        bwfBeanDefinition.setScope(SINGLETON);
+        beanDefinitionBWFComponentMaps.put(className, bwfBeanDefinition);
+        singletonBWFComponentMaps.put(className, object);
     }
 
 }

@@ -5,6 +5,7 @@ import com.bwf.common.annotation.bootstrap.annotation.*;
 import com.bwf.common.annotation.bootstrap.BWFBeanDefinition;
 import com.bwf.core.bootstrap.manager.bwfComponent.BWFComponentManager;
 import com.bwf.core.bootstrap.utils.StartupInfoLogger;
+import com.bwf.core.eventbus.BWFEventMessageBus;
 import com.bwf.core.io.FileUtil;
 import com.bwf.core.io.ResourceLoader;
 import org.apache.commons.lang3.StringUtils;
@@ -28,15 +29,17 @@ public class BWFApplicationContext {
     private final static String _COM = "com";
     private static Class<?> mainApplicationClass;
     private BWFComponentManager bwfComponentManager;
-    private ConcurrentHashMap<String,Object> singletonObjects = new ConcurrentHashMap<>();
-    private ConcurrentHashMap<String, BWFBeanDefinition> beanDefinitionMap = new ConcurrentHashMap<>();
-
+    private BWFEventMessageBus eventMessageBusInstance;
     public BWFApplicationContext(Class<?>... primarySources) {
         this((ResourceLoader)null, primarySources);
     }
     public BWFApplicationContext(ResourceLoader resourceLoader, Class<?>... primarySources) {
         this.mainApplicationClass = this.deduceMainApplicationClass();
         this.bwfComponentManager = (BWFComponentManager) new BWFComponentManager().getInstance();
+        this.eventMessageBusInstance = BWFEventMessageBus.getInstance();
+        //注入系统ComponentBean eventMessageBus到BWFComponent集合中
+        this.bwfComponentManager.injectBWFComponentBean("eventMessageBus", this.eventMessageBusInstance);
+
     }
 
     public static ConfigurableApplicationContext run(Class<?> primarySource, String... args) {
@@ -74,11 +77,11 @@ public class BWFApplicationContext {
                     }
                 }
                 bwfComponentManager.scanSingleton();
-//                bwfComponentManager.scanSingletonMap();
+                bwfComponentManager.scanSingletonMap();
                 //解析注解-BWFGlobalConfigScan
-
+                System.out.println(11111);
             }else{
-
+               throw new NullPointerException("未发现BWFApplication注解类，无法初始化BWF框架。请在mian函数类上添加！");
             }
 
         }catch (Exception e){

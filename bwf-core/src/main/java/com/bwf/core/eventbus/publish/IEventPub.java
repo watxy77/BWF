@@ -4,8 +4,8 @@ package com.bwf.core.eventbus.publish;
  * @description
  */
 
-import com.bwf.core.eventbus.AppletEventMessageBus;
+import com.bwf.core.eventbus.BWFEventMessageBus;
 
 public interface IEventPub {
-    void sourceScanner(AppletEventMessageBus appletEventMessageBus);
+    void sourceScanner(BWFEventMessageBus BWFEventMessageBus);
 }

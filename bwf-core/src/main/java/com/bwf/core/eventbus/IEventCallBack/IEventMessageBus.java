@@ -1,22 +1,22 @@
 package com.bwf.core.eventbus.IEventCallBack;
 
-import com.bwf.core.eventbus.AppletEventMessageBus;
+import com.bwf.core.eventbus.BWFEventMessageBus;
 /**
  * @Author bjweijiannan
  * @description
  */
 public interface IEventMessageBus {
-    AppletEventMessageBus emit(String eventName, Object args);
-    AppletEventMessageBus emit(boolean acync, String eventName, Object args);
+    BWFEventMessageBus emit(String eventName, Object args);
+    BWFEventMessageBus emit(boolean acync, String eventName, Object args);
     boolean checkEvent(String eventName);
 
-    AppletEventMessageBus removeEvent(String eventName, EventCallBack callBack);
-    AppletEventMessageBus removeEvent(String eventName);
+    BWFEventMessageBus removeEvent(String eventName, EventCallBack callBack);
+    BWFEventMessageBus removeEvent(String eventName);
 
 
-    AppletEventMessageBus bind(String eventName, EventCallBack eventCallBack);
-    AppletEventMessageBus bind(String eventName, EventCallBackNoArgs callBackNoArgs);
-    AppletEventMessageBus bind(String eventName, EventCallBackArgs callBackArgs);
+    BWFEventMessageBus bind(String eventName, EventCallBack eventCallBack);
+    BWFEventMessageBus bind(String eventName, EventCallBackNoArgs callBackNoArgs);
+    BWFEventMessageBus bind(String eventName, EventCallBackArgs callBackArgs);
 
     void setPubEvent(String eventName, Object args);
 

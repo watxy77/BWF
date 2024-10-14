@@ -1,5 +1,7 @@
 package com.bwf.core.eventbus;
 
+import com.bwf.common.annotation.bootstrap.BWFInitializingBean;
+import com.bwf.common.annotation.bootstrap.annotation.BWFComponent;
 import com.bwf.core.eventbus.IEventCallBack.*;
 import com.bwf.core.eventbus.IEventSub.IEventSub;
 import com.bwf.core.eventbus.IEventSub.IEventSubArgs;
@@ -15,31 +17,30 @@ import java.util.concurrent.Executors;
  * @Author bjweijiannan
  * @description
  */
-public class AppletEventMessageBus implements IEventMessageBus {
+public class BWFEventMessageBus implements IEventMessageBus {
     private final ConcurrentHashMap<String, List<EventCallBack>> appletEventBus = new ConcurrentHashMap<>();
     private final ExecutorService threadPool = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
 
-    private volatile static AppletEventMessageBus appletEventMessageBus;
-
-    public static AppletEventMessageBus getInstance() {
-        if (null == appletEventMessageBus) {
-            synchronized (AppletEventMessageBus.class) {
-                if (null == appletEventMessageBus) {
-                    appletEventMessageBus = new AppletEventMessageBus();
+    private volatile static BWFEventMessageBus BWFEventMessageBus;
+    public static BWFEventMessageBus getInstance() {
+        if (null == BWFEventMessageBus) {
+            synchronized (BWFEventMessageBus.class) {
+                if (null == BWFEventMessageBus) {
+                    BWFEventMessageBus = new BWFEventMessageBus();
                 }
             }
         }
-        return appletEventMessageBus;
+        return BWFEventMessageBus;
     }
 
     @Override
-    public AppletEventMessageBus emit(String eventName, Object args) {
+    public BWFEventMessageBus emit(String eventName, Object args) {
 
         return this.emit(true, eventName, args);
     }
 
     @Override
-    public AppletEventMessageBus emit(boolean acync, String eventName, Object args) {
+    public BWFEventMessageBus emit(boolean acync, String eventName, Object args) {
         if(!checkEvent(eventName)){
             return this;
         }
@@ -87,7 +88,7 @@ public class AppletEventMessageBus implements IEventMessageBus {
     }
 
     @Override
-    public AppletEventMessageBus removeEvent(String eventName, EventCallBack callBack) {
+    public BWFEventMessageBus removeEvent(String eventName, EventCallBack callBack) {
         if(!appletEventBus.containsKey(eventName)){
             return this;
         }
@@ -98,7 +99,7 @@ public class AppletEventMessageBus implements IEventMessageBus {
     }
 
     @Override
-    public AppletEventMessageBus removeEvent(String eventName) {
+    public BWFEventMessageBus removeEvent(String eventName) {
         if(!appletEventBus.containsKey(eventName)){
             return this;
         }
@@ -107,7 +108,7 @@ public class AppletEventMessageBus implements IEventMessageBus {
     }
 
     @Override
-    public AppletEventMessageBus bind(String eventName, EventCallBack eventCallBack) {
+    public BWFEventMessageBus bind(String eventName, EventCallBack eventCallBack) {
         if(checkEvent(eventName)){
             return this;
         }
@@ -118,38 +119,38 @@ public class AppletEventMessageBus implements IEventMessageBus {
     }
 
     @Override
-    public AppletEventMessageBus bind(String eventName, EventCallBackNoArgs callBackNoArgs) {
+    public BWFEventMessageBus bind(String eventName, EventCallBackNoArgs callBackNoArgs) {
         return bind(eventName, (EventCallBack) callBackNoArgs);
     }
 
     @Override
-    public AppletEventMessageBus bind(String eventName, EventCallBackArgs callBackArgs) {
+    public BWFEventMessageBus bind(String eventName, EventCallBackArgs callBackArgs) {
         return bind(eventName, (EventCallBack) callBackArgs);
     }
 
     @Override
     public void setPubEvent(String eventName, Object object) {
         if (object instanceof IEventSubArgs){
-            this.appletEventMessageBus.bind(eventName, (IEventSubArgs)object);
+            this.BWFEventMessageBus.bind(eventName, (IEventSubArgs)object);
         }else if (object instanceof IEventSub){
-            this.appletEventMessageBus.bind(eventName, (IEventSub)object);
+            this.BWFEventMessageBus.bind(eventName, (IEventSub)object);
         }else if (object instanceof IEventSubObject){
-            this.appletEventMessageBus.bind(eventName, (IEventSubObject)object);
+            this.BWFEventMessageBus.bind(eventName, (IEventSubObject)object);
         }else if (object instanceof IEventSubArgsAndObject){
-            this.appletEventMessageBus.bind(eventName, (IEventSubArgsAndObject)object);
+            this.BWFEventMessageBus.bind(eventName, (IEventSubArgsAndObject)object);
         }else{
         }
     }
 
     @Override
     public void setSubEvent(String eventName, Object object) {
-        this.appletEventMessageBus.emit(eventName, object);
+        this.BWFEventMessageBus.emit(eventName, object);
 
     }
 
 
     public static void main(String[] args) {
-        AppletEventMessageBus instance = AppletEventMessageBus.getInstance();
+        BWFEventMessageBus instance = BWFEventMessageBus.getInstance();
 
 //        new Thread(new Runnable() {
 //            @Override
@@ -205,7 +206,9 @@ public class AppletEventMessageBus implements IEventMessageBus {
             }
         });
 
-        AppletEventMessageBus hello = instance.emit(true, "hello", "你好");
+        BWFEventMessageBus hello = instance.emit(true, "hello", "你好");
 
     }
+
+
 }
