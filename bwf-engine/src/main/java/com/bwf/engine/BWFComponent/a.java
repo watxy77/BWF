@@ -10,7 +10,11 @@ public class a implements BWFInitializingBean {
     private b b;
     @Override
     public void afterPropertiesSet() throws Exception {
-        System.out.println("111");
-        System.out.println(b);
+        if (b != null) {
+            b.text();
+        }
+    }
+    public void text(){
+        System.out.println("----->aaaaa------>"+b);
     }
 }

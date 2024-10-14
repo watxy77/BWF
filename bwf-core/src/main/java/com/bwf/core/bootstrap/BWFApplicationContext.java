@@ -24,7 +24,8 @@ import java.util.concurrent.ConcurrentHashMap;
  * @description
  */
 public class BWFApplicationContext {
-    private final static String SINGLETON = "singleton";
+    private final static String _CLASS = ".class";
+    private final static String _COM = "com";
     private static Class<?> mainApplicationClass;
     private BWFComponentManager bwfComponentManager;
     private ConcurrentHashMap<String,Object> singletonObjects = new ConcurrentHashMap<>();
@@ -60,19 +61,20 @@ public class BWFApplicationContext {
                 List<String> flieList = new ArrayList<>();
                 FileUtil.traverseFiles(file, flieList);
                 for (String f : flieList) {
-                    if (f.endsWith(".class")) {
-                        String className = f.substring(f.indexOf("com"), f.indexOf(".class"));
+                    if (f.endsWith(_CLASS)) {
+                        String className = f.substring(f.indexOf(_COM), f.indexOf(_CLASS));
                         className = className.replace(File.separator, ".");
                         Class<?> clazz = mainClassLoader.loadClass(className);
                         if(clazz.isAnnotationPresent(BWFComponent.class)){
                             //解析注解-BWFComponent
-                            bwfComponentManager.createSingleton(className, clazz);
+                            bwfComponentManager.createBWFBeanDefinition(className, clazz);
                         }else if(clazz.isAnnotationPresent(BWFNode.class)){
                             //解析注解-BWFNode
                         }
                     }
                 }
-
+                bwfComponentManager.scanSingleton();
+//                bwfComponentManager.scanSingletonMap();
                 //解析注解-BWFGlobalConfigScan
 
             }else{
@@ -94,7 +96,6 @@ public class BWFApplicationContext {
             StackTraceElement[] stackTrace = (new RuntimeException()).getStackTrace();
             StackTraceElement[] var2 = stackTrace;
             int var3 = stackTrace.length;
-
             for(int var4 = 0; var4 < var3; ++var4) {
                 StackTraceElement stackTraceElement = var2[var4];
                 if ("main".equals(stackTraceElement.getMethodName())) {
