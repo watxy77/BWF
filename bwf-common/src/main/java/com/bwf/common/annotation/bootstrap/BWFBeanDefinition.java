@@ -1,6 +1,6 @@
 package com.bwf.common.annotation.bootstrap;
 
-public class BWFBeanDefinition {
+public abstract class BWFBeanDefinition {
     private Class clazz;
     private String scope;
 
