@@ -1,6 +1,7 @@
 package com.bwf.core.bootstrap;
 
-import com.sun.istack.internal.Nullable;
+
+import com.bwf.common.annotation.bootstrap.annotation.Nullable;
 
 /**
  * @Author bjweijiannan

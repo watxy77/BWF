@@ -4,6 +4,7 @@ public abstract class BWFBeanDefinition {
     private Class clazz;
     private String scope;
     private String className;
+    private String type;
 
     public Class getClazz() {
         return clazz;
@@ -27,5 +28,13 @@ public abstract class BWFBeanDefinition {
 
     public void setClassName(String className) {
         this.className = className;
+    }
+
+    public String getType() {
+        return type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
     }
 }

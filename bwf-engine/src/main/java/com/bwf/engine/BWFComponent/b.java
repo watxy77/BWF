@@ -14,7 +14,7 @@ public class b  implements BWFInitializingBean {
 
     @Override
     public void afterPropertiesSet() throws Exception {
-        if(a != null) {
+        if(a != null){
             a.text();
             System.out.println("eventMessageBus------>" + eventMessageBus);
         }

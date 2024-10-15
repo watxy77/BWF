@@ -2,7 +2,8 @@ package com.bwf.core.bootstrap;
 
 
 import com.bwf.common.annotation.Lifecycle;
-import com.sun.istack.internal.Nullable;
+import com.bwf.common.annotation.bootstrap.annotation.Nullable;
+
 
 import java.io.Closeable;
 

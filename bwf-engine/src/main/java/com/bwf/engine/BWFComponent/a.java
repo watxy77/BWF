@@ -15,13 +15,13 @@ public class a implements BWFInitializingBean {
     private BWFEventMessageBus eventMessageBus;
     @Override
     public void afterPropertiesSet() throws Exception {
-        if (b != null) {
+        if(b != null){
             b.text();
             System.out.println("eventMessageBus----->"+eventMessageBus);
         }
     }
     public void text(){
-        System.out.println("----->aaaaa------>"+b);
+        System.out.println("----->aaaaa------>"+ b);
         eventMessageBus.setPubEvent(EventEnum.DUCC_HANDLE_SUB.getCode(), new DataHandleSub());
     }
 }

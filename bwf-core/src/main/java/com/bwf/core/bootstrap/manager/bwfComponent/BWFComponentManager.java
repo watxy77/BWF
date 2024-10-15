@@ -18,17 +18,18 @@ import java.util.concurrent.ConcurrentHashMap;
 import static org.python.bouncycastle.asn1.x500.style.RFC4519Style.o;
 
 public class BWFComponentManager implements BWFAnnotationManager {
-    private static BWFComponentManager instance;
-    private ConcurrentHashMap<String,String > lostBeanMaps = new ConcurrentHashMap<>();
+    private final static String _CONSUMER = "consumer";
+    private static BWFComponentManager BWFCMInstance;
+    private ConcurrentHashMap<String,String > autowiredBeanMaps = new ConcurrentHashMap<>();
     private ConcurrentHashMap<String,Object> singletonBWFComponentMaps = new ConcurrentHashMap<>();
     private ConcurrentHashMap<String, BWFComponentBeanDefinition> beanDefinitionBWFComponentMaps = new ConcurrentHashMap<>();
 
     @Override
     public Object getInstance() {
-        if(instance == null){
-            instance = new BWFComponentManager();
+        if(BWFCMInstance == null){
+            BWFCMInstance = new BWFComponentManager();
         }
-        return instance;
+        return BWFCMInstance;
     }
 
     @Override
@@ -39,16 +40,17 @@ public class BWFComponentManager implements BWFAnnotationManager {
             //依赖注入
             for(Field field :clazz.getDeclaredFields()){
                 if(field.isAnnotationPresent(BWFAutowired.class)){
-                    Object bean = getBean(field.getName());
-                    if(bean == null){
-                        //找不到bean，无法给属性注入值
-                        lostBeanMaps.put(BWFBeanDefinition.getClassName(), field.getName());
-                    }
-                    field.setAccessible(true);
-                    field.set(instance, bean);
+                    autowiredBeanMaps.put(BWFBeanDefinition.getClassName(), field.getName());
+//                    Object bean = getBean(field.getName());
+//                    if(bean == null){
+//                        //找不到bean，无法给属性注入值
+//                        lostBeanMaps.put(BWFBeanDefinition.getClassName(), field.getName());
+//                    }
+//                    field.setAccessible(true);
+//                    field.set(instance, bean);
                 }
+                return null;
             }
-
             //调用初始化方法
             if(instance instanceof BWFInitializingBean){
                 try {
@@ -59,13 +61,7 @@ public class BWFComponentManager implements BWFAnnotationManager {
             }
 
             return instance;
-        }catch (InvocationTargetException e) {
-            throw new RuntimeException(e);
-        } catch (InstantiationException e) {
-            throw new RuntimeException(e);
-        } catch (IllegalAccessException e) {
-            throw new RuntimeException(e);
-        } catch (NoSuchMethodException e) {
+        }catch (Exception e) {
             throw new RuntimeException(e);
         }
 
@@ -108,6 +104,7 @@ public class BWFComponentManager implements BWFAnnotationManager {
         BWFComponentBeanDefinition BWFBeanDefinition = new BWFComponentBeanDefinition();
         BWFBeanDefinition.setClassName(beanName);
         BWFBeanDefinition.setClazz(clazz);
+        BWFBeanDefinition.setType(_CONSUMER);
         if(clazz.isAnnotationPresent(BWFScope.class)){
             BWFScope declaredScope = (BWFScope) clazz.getDeclaredAnnotation(BWFScope.class);
             BWFBeanDefinition.setScope(PROTOTYPE);
@@ -127,26 +124,50 @@ public class BWFComponentManager implements BWFAnnotationManager {
                 singletonBWFComponentMaps.put(beanName, bean);
             }
         }
-        for(Map.Entry<String, String> lostBean: lostBeanMaps.entrySet()){
-            String parasitiferBeanName = lostBean.getKey();
-            String autowiredBeanName = lostBean.getValue();
-            Object o1 = singletonBWFComponentMaps.get(autowiredBeanName);
-            Object o2 = singletonBWFComponentMaps.get(parasitiferBeanName);
 
-            if(o1 != null && o2 != null){
-                //依赖注入
-                for(Field field :o2.getClass().getDeclaredFields()){
-                    if(field.getName() == autowiredBeanName && field.isAnnotationPresent(BWFAutowired.class)){
-                        try {
-                            field.setAccessible(true);
-                            field.set(o2, o1);
-                        } catch (IllegalAccessException e) {
-                            throw new RuntimeException(e);
-                        }
-                    }
-                }
-            }
-        }
+//        //依赖注入
+//        for(Map.Entry<String, Object> lostBean: singletonBWFComponentMaps.entrySet()){
+//            String className = lostBean.getKey();
+//            Object value = lostBean.getValue();
+//            if(value != null){
+//                try {
+//                    Class clazz = value.getClass();
+//                    Object instanceO = clazz.getConstructor().newInstance();
+//                    //依赖注入
+//                    for(Field field :clazz.getDeclaredFields()){
+//                        if(field.isAnnotationPresent(BWFAutowired.class)){
+//                            try {
+//                                System.out.println("variable name:"+field.getName());
+//                                Object bean = getBean(field.getName());
+//                                System.out.println(bean);
+//                                field.setAccessible(true);
+//                                field.set(instanceO, bean);
+//                                System.out.println(field);
+//
+//                            } catch (IllegalAccessException e) {
+//                                throw new RuntimeException(e);
+//                            }
+//                        }
+//                    }
+//                    //调用初始化方法
+//                    if(instanceO instanceof BWFInitializingBean){
+//                        try {
+//                            ((BWFInitializingBean) instanceO).afterPropertiesSet();
+//                        } catch (Exception e) {
+//                            throw new RuntimeException(e);
+//                        }
+//                    }
+//                } catch (InstantiationException e) {
+//                    throw new RuntimeException(e);
+//                } catch (IllegalAccessException e) {
+//                    throw new RuntimeException(e);
+//                } catch (InvocationTargetException e) {
+//                    throw new RuntimeException(e);
+//                } catch (NoSuchMethodException e) {
+//                    throw new RuntimeException(e);
+//                }
+//            }
+//        }
     }
 
     public void scanSingletonMap() {
@@ -168,6 +189,7 @@ public class BWFComponentManager implements BWFAnnotationManager {
         bwfBeanDefinition.setClassName(className);
         bwfBeanDefinition.setClazz(object.getClass());
         bwfBeanDefinition.setScope(SINGLETON);
+        bwfBeanDefinition.setType("system");
         beanDefinitionBWFComponentMaps.put(className, bwfBeanDefinition);
         singletonBWFComponentMaps.put(className, object);
     }
