@@ -2,7 +2,7 @@ package com.bwf.engine;
 
 import com.bwf.common.annotation.bootstrap.annotation.BWFApplication;
 import com.bwf.common.annotation.bootstrap.annotation.BWFGlobalConfigScan;
-import com.bwf.core.bootstrap.BWFApplicationContext;
+import com.bwf.core.context.BWFApplicationContext;
 
 @BWFApplication
 @BWFGlobalConfigScan({"engine.yml"})
