@@ -1,5 +1,7 @@
 package com.bwf.common.annotation.bootstrap;
 
+import com.bwf.common.utils.StringUtils;
+
 public abstract class BWFBeanDefinition {
     private Class clazz;
     private String scope;
@@ -36,5 +38,21 @@ public abstract class BWFBeanDefinition {
 
     public void setType(String type) {
         this.type = type;
+    }
+
+    public boolean isSingleton(){
+        boolean flag = false;
+        if(StringUtils.isNotEmpty(this.getScope()) && "singleton".equals(this.getScope())){
+            flag = true;
+        }
+        return flag;
+
+    }
+    public boolean isPrototype(){
+        boolean flag = false;
+        if(StringUtils.isNotEmpty(this.getScope()) && "prototype".equals(this.getScope())){
+            flag = true;
+        }
+        return flag;
     }
 }

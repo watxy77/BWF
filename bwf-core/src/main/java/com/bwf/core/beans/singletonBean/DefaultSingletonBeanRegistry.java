@@ -1,13 +1,14 @@
-package com.bwf.core.support.singletonBean;
+package com.bwf.core.beans.singletonBean;
 
 import cn.hutool.core.lang.Assert;
 import com.bwf.common.annotation.bootstrap.annotation.Nullable;
-import com.bwf.core.support.ObjectFactory;
+import com.bwf.core.beans.ObjectFactory;
+import com.bwf.core.beans.factory.ConfigurableBeanFactory;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
-public abstract class AbstractDefaultSingletonBeanRegistry implements ConfigurableBeanFactory{
+public class DefaultSingletonBeanRegistry implements ConfigurableBeanFactory {
     /** 一级缓存 */
     private final Map<String, Object> singletonObjects = new ConcurrentHashMap<>(256);
     /** 二级缓存 */
@@ -89,6 +90,17 @@ public abstract class AbstractDefaultSingletonBeanRegistry implements Configurab
 
     public boolean isSingletonCurrentlyInCreation(String beanName) {
         return this.singletonsCurrentlyInCreation.contains(beanName);
+    }
+
+    protected void addSingletonFactory(String beanName, ObjectFactory<?> singletonFactory) {
+        Assert.notNull(singletonFactory, "Singleton factory must not be null");
+        synchronized (this.singletonObjects) {
+            if (!this.singletonObjects.containsKey(beanName)) {
+                this.singletonFactories.put(beanName, singletonFactory);
+                this.earlySingletonObjects.remove(beanName);
+                this.registeredSingletons.add(beanName);
+            }
+        }
     }
 
 }

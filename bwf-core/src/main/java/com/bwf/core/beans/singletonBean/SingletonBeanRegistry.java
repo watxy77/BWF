@@ -1,4 +1,4 @@
-package com.bwf.core.support.singletonBean;
+package com.bwf.core.beans.singletonBean;
 
 import com.bwf.common.annotation.bootstrap.annotation.Nullable;
 

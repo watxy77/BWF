@@ -1,4 +1,4 @@
-package com.bwf.core.support;
+package com.bwf.core.beans;
 
 import com.bwf.core.exception.BeansException;
 

@@ -2,8 +2,7 @@ package com.bwf.core.bootstrap;
 
 
 import com.bwf.common.annotation.bootstrap.annotation.Nullable;
-import com.bwf.core.eventbus.BWFEventMessageBus;
-import com.bwf.core.support.BeanFactory;
+import com.bwf.core.beans.factory.BeanFactory;
 
 /**
  * @Author bjweijiannan
