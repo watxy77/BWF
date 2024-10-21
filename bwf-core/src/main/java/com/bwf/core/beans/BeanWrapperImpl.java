@@ -19,6 +19,7 @@ public class BeanWrapperImpl implements BeanWrapper{
 
     @Override
     public Class<?> getWrappedClass() {
-        return null;
+        this.clazz = getWrappedInstance().getClass();
+        return  this.clazz;
     }
 }

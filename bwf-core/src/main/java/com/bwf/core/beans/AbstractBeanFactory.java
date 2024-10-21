@@ -1,13 +1,18 @@
 package com.bwf.core.beans;
 
+import com.bwf.common.annotation.bootstrap.annotation.BWFAutowired;
+import com.bwf.common.annotation.bootstrap.annotation.BWFComponent;
 import com.bwf.common.annotation.bootstrap.annotation.Nullable;
+import com.bwf.common.utils.StringUtils;
 import com.bwf.core.beans.factory.AutowireCapableBeanFactory;
 import com.bwf.core.beans.factory.BeanFactory;
+import com.bwf.core.beans.support.NullBean;
 import com.bwf.core.exception.BeanCreationException;
 import com.bwf.core.exception.BeansException;
 import com.bwf.core.beans.singletonBean.DefaultSingletonBeanRegistry;
 
-import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Field;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
@@ -15,7 +20,9 @@ public abstract class AbstractBeanFactory extends DefaultSingletonBeanRegistry i
     private final static String _CONSUMER = "consumer";
     /**是否开启循环依赖，默认开启*/
     private boolean allowCircularReferences = true;
+    private volatile boolean hasInstantiationAwareBeanPostProcessors;
     private final ConcurrentMap<String, BeanWrapper> factoryBeanInstanceCache = new ConcurrentHashMap<>();
+    private final Map<String, RootBeanDefinition> mergedBeanDefinitions = new ConcurrentHashMap<>(256);
     public void setAllowCircularReferences(boolean allowCircularReferences) {
         this.allowCircularReferences = allowCircularReferences;
     }
@@ -39,18 +46,35 @@ public abstract class AbstractBeanFactory extends DefaultSingletonBeanRegistry i
             throws BeansException {
         String beanName = transformedBeanName(name);
         Object bean = null;
-
+        // 提前检查在一级缓存中是否存在已注册的单例对象
         Object sharedInstance = getSingleton(beanName);
+        // 如果单例bean对象存在，切没有创建bean实例时要使用的参数
+        if (sharedInstance != null && args == null) {
+//            bean = getObjectForBeanInstance(sharedInstance, name, beanName, null);
+        }else{
+            RootBeanDefinition mbd = getLocalRootBeanDefinition(beanName);
+            mbd.setBeanClassName(name);
+            if (mbd.isSingleton()) {
+                sharedInstance = getSingleton(beanName, () -> {
+                    try {
+                        return createBean(beanName, mbd);
+                    }catch (Exception e) {
+                        destroyBean(beanName);
+                        throw e;
+                    }
+                });
+            }
+        }
         return (T) bean;
     }
 
-    protected String transformedBeanName(String name) {
-       return "";
-    }
-
-    @Override
-    public <T> T getBean(Class<T> requiredType) throws BeansException {
-        return null;
+    protected String transformedBeanName(String className) {
+        String beanName = "";
+        if(StringUtils.isNotEmpty(className)){
+            int startIndex = className.lastIndexOf(".");
+            beanName = className.substring(startIndex + 1, className.length());
+        }
+       return beanName;
     }
 
     @Override
@@ -59,40 +83,62 @@ public abstract class AbstractBeanFactory extends DefaultSingletonBeanRegistry i
     }
 
     @Override
-    public Object createBean(String className, Class beanClass) throws BeanCreationException {
-        RootBeanDefinition rbd = new RootBeanDefinition();
-        rbd.setBeanName(className);
-        rbd.setBeanClass(beanClass);
-
-        doCreateBean(className, rbd);
-        return null;
+    public Object createBean(String beanName, RootBeanDefinition mbd) throws BeanCreationException {
+        RootBeanDefinition mbdToUse = mbd;
+        // 锁定class，，根据设置的class属性或者根据className来解析class
+        Class<?> resolvedClass = mbd.getBeanClass();
+        // 进行条件筛选，重新复制RootBeanDefinition，并设置BeanClass属性
+        if (resolvedClass != null && !mbd.hasBeanClass() && mbd.getBeanClassName() != null) {
+            //重新创建一个RootBeanDefinition对象
+            mbdToUse = new RootBeanDefinition(mbd);
+            // 设置BeanClass属性值
+            mbdToUse.setBeanClass(resolvedClass);
+        }
+        try {
+            //实际创建Bean的调用
+            Object beanInstance = doCreateBean(beanName, mbd);
+            return beanInstance;
+        }catch (Exception e){
+            throw e;
+        }
     }
 
     protected Object doCreateBean(String beanName, RootBeanDefinition rbd) {
         // Instantiate the bean.
+        //这个beanWrapper是用来持有创建出来的bean对象的
         BeanWrapper instanceWrapper = null;
-
+        //获取factoryBean实例缓存
         if (rbd.isSingleton()) {
-            //有可能在本Bean创建之前，就有其他的Bean把当前Bean给创建出来了（比如依赖注入过程时）
+            //有可能在当前Bean创建之前，就有其他的Bean把当前Bean给创建出来了（比如依赖注入过程时）
+            //如果是单例对象，从factoryBean实例缓存中删除当前bean定义信息
             instanceWrapper = this.factoryBeanInstanceCache.remove(beanName);
         }
+        // 没有则创建实例
         if (instanceWrapper == null) {
-            //创建Bean实例
+            //创建Bean实例 根据执行Bean使用对应策略创建新的实例，
             instanceWrapper = createBeanInstance(beanName, rbd);
         }
+        // 从包装类中获取原始bean
         Object bean = instanceWrapper.getWrappedInstance();
-        //判断循环依赖
+        // 获取具体的bean对象的class属性
+        Class<?> beanType = instanceWrapper.getWrappedClass();
+        // 如果不等于NullBean类型，那么修改目标类型
+        if (beanType != NullBean.class) {
+            rbd.resolvedTargetType = beanType;
+        }
+        //判断当前bean是否需要提前曝光，单例&允许循环依赖&当前bean正在创建中，检测环境依赖
         boolean earlySingletonExposure = (rbd.isSingleton() && this.allowCircularReferences &&
                 isSingletonCurrentlyInCreation(beanName));
         //是否出现循环依赖
         if (earlySingletonExposure) {
             //循环依赖添加三级缓存
+            // 为了避免后期循环依赖，可在bean初始化完成前将创建实例的ObjectFactory加入工厂
             addSingletonFactory(beanName, () -> getEarlyBeanReference(beanName, rbd, bean));
         }
         // Initialize the bean instance.
         Object exposedObject = bean;
         try {
-            //属性填充
+            //属性填充，将各个属性值注入，其中，可能存在依赖于其他bean的属性，则会通过递归初始化依赖的bean
             populateBean(beanName, rbd, instanceWrapper);
             //初始化
             exposedObject = initializeBean(beanName, exposedObject, rbd);
@@ -107,9 +153,28 @@ public abstract class AbstractBeanFactory extends DefaultSingletonBeanRegistry i
         if (bw == null) {
 
         }
+        try{
+            //获取Bean引用
+            Class<?> clazz = rbd.getBeanClass();
+            Object instance = clazz.getConstructor().newInstance();
+            for(Field field :clazz.getDeclaredFields()){
+                field.setAccessible(true);
+                //获取属性名称
+                String fieldName = field.getName();
+                Class<?> type = field.getType();
+                if(field.isAnnotationPresent(BWFAutowired.class)){
+                    //获取依赖注入需要的bean对象
+                    Object bean = getBean(type.getName());
+                }
+            }
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+
+
     }
 
-    /**属性填充*/
+    /**初始化bean*/
     protected Object initializeBean(String beanName, Object bean, @Nullable RootBeanDefinition rbd) {
         Object wrappedBean = bean;
 
@@ -122,18 +187,12 @@ public abstract class AbstractBeanFactory extends DefaultSingletonBeanRegistry i
         //普通对象生成
         BeanWrapper bw = null;
         try {
-            Class beanClass = rbd.getBeanClass();
+            Class<?> beanClass = rbd.getBeanClass();
             Object beanInstance = beanClass.getConstructor().newInstance();
             bw = new BeanWrapperImpl();
             bw.setWrappedInstance(beanInstance);
 
-        } catch (InstantiationException e) {
-            throw new RuntimeException(e);
-        } catch (IllegalAccessException e) {
-            throw new RuntimeException(e);
-        } catch (InvocationTargetException e) {
-            throw new RuntimeException(e);
-        } catch (NoSuchMethodException e) {
+        } catch (Exception e) {
             throw new RuntimeException(e);
         }
 
@@ -141,18 +200,83 @@ public abstract class AbstractBeanFactory extends DefaultSingletonBeanRegistry i
     }
 
     protected Object getEarlyBeanReference(String beanName, RootBeanDefinition rbd, Object bean) {
+        //原始对象赋值
         Object exposedObject = bean;
-//        if (!mbd.isSynthetic() && hasInstantiationAwareBeanPostProcessors()) {
+        if (!rbd.isSynthetic() && this.hasInstantiationAwareBeanPostProcessors) {
 //            for (BeanPostProcessor bp : getBeanPostProcessors()) {
 //                if (bp instanceof SmartInstantiationAwareBeanPostProcessor) {
 //                    SmartInstantiationAwareBeanPostProcessor ibp = (SmartInstantiationAwareBeanPostProcessor) bp;
 //                    exposedObject = ibp.getEarlyBeanReference(exposedObject, beanName);
 //                }
 //            }
+        }
+
+
+        // Create proxy if we have advice.
+        //判断当前bean是否存在匹配的advice。如果存在生成一个代理对象
+        //此处根据以及类中的方法匹配达到Interceptor（也就是Advice），然后生成代理对象，代理对象在执行的时候，还会根据当前
+//        Object[] specificInterceptors = getAdvicesAndAdvisorsForBean(bean.getClass(), beanName, null);
+//        if (specificInterceptors != DO_NOT_PROXY) {
+//            this.advisedBeans.put(cacheKey, Boolean.TRUE);
+//            Object proxy = createProxy(
+//                    bean.getClass(), beanName, specificInterceptors, new SingletonTargetSource(bean));
+//            this.proxyTypes.put(cacheKey, proxy.getClass());
+//            return proxy;
 //        }
+//
+//        this.advisedBeans.put(cacheKey, Boolean.FALSE);
+//        return bean;
         return exposedObject;
     }
 
+
+
+    protected RootBeanDefinition getLocalRootBeanDefinition(String beanName) throws BeansException {
+        //如果beanName没有设置,获取名称
+        RootBeanDefinition rbd = this.mergedBeanDefinitions.get(beanName);
+        if (rbd != null) {
+            return rbd;
+        }
+        return getLocalRootBeanDefinition(beanName, rbd);
+    }
+
+    protected RootBeanDefinition getLocalRootBeanDefinition(String beanName, RootBeanDefinition rbd)
+            throws BeansException {
+        synchronized (this.mergedBeanDefinitions) {
+            RootBeanDefinition mbd = null;
+//            RootBeanDefinition previous = null;
+            if (rbd == null) {
+                mbd = this.mergedBeanDefinitions.get(beanName);
+            }
+            if (mbd == null) {
+                mbd = new RootBeanDefinition(mbd);
+//                previous = mbd;
+                mbd.setBeanName(beanName);
+//                mbd.setBeanClass(beanClass);
+
+                this.mergedBeanDefinitions.put(beanName, mbd);
+
+            }
+            return mbd;
+        }
+    }
+
+    @Override
+    public void preInstantiateSingletons(String className, Class<?> clazz) throws BeansException {
+        BWFComponent declaredAnnotations = clazz.getDeclaredAnnotation(BWFComponent.class);
+        String beanName = declaredAnnotations.value();
+        if(StringUtils.isEmpty(beanName)){
+            beanName = transformedBeanName(className);
+        }
+        RootBeanDefinition bd = getLocalRootBeanDefinition(beanName);
+        bd.setBeanClass(clazz);
+        //条件判断，单例
+        if (bd.isSingleton()) {
+            Object bean = getBean(bd.getBeanName());
+        }else{
+            getBean(beanName);
+        }
+    }
 
     @Override
     public void destroyBean(Object existingBean) {
