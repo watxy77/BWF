@@ -1,19 +1,12 @@
 package com.bwf.core.context;
 
+import com.bwf.common.annotation.bootstrap.BWFInitializingBean;
 import com.bwf.common.annotation.bootstrap.annotation.*;
-import com.bwf.common.utils.StringUtils;
-import com.bwf.core.bootstrap.ApplicationContext;
 import com.bwf.core.bootstrap.utils.StartupInfoLogger;
-import com.bwf.core.eventbus.BWFEventMessageBus;
 import com.bwf.core.exception.BeansException;
-import com.bwf.core.io.FileUtil;
 import com.bwf.core.io.ResourceLoader;
 
-import java.io.File;
-import java.net.URL;
 import java.time.Duration;
-import java.util.*;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * @Author bjweijiannan
@@ -55,6 +48,32 @@ public class BWFApplicationContext extends AbstractApplicationContext{
             Duration timeTakenToStartup = Duration.ofNanos(System.nanoTime() - this.startupDate);
             (new StartupInfoLogger(this.mainApplicationClass)).logStarted(timeTakenToStartup);
         }
+
         return this;
+    }
+
+    @Override
+    public Object getBean(String name) throws BeansException {
+        return null;
+    }
+
+    @Override
+    public Object getComponentBean(String beanName) {
+        return this.getBWFComponentBeanContext().getBean(beanName);
+    }
+
+    @Override
+    public Object getNodeBean(String beanName) {
+        return this.getBWFNodeBeanContext().getBean(beanName);
+    }
+
+    @Override
+    public void start() {
+
+    }
+
+    @Override
+    public void stop() {
+
     }
 }

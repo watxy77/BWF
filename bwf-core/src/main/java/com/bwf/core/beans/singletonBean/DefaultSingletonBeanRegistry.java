@@ -4,6 +4,7 @@ import cn.hutool.core.lang.Assert;
 import com.bwf.common.annotation.bootstrap.annotation.Nullable;
 import com.bwf.core.beans.ObjectFactory;
 import com.bwf.core.beans.factory.ConfigurableBeanFactory;
+import com.bwf.core.exception.BeanCreationException;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -18,6 +19,8 @@ public class DefaultSingletonBeanRegistry implements ConfigurableBeanFactory {
     private final Map<String, ObjectFactory<?>> singletonFactories = new HashMap<>(16);
     private final Set<String> registeredSingletons = new LinkedHashSet<>(256);
     private final Set<String> singletonsCurrentlyInCreation =
+            Collections.newSetFromMap(new ConcurrentHashMap<>(16));
+    private final Set<String> inCreationCheckExclusions =
             Collections.newSetFromMap(new ConcurrentHashMap<>(16));
     @Override
     public void registerSingleton(String beanName, Object singletonObject) {
@@ -49,19 +52,24 @@ public class DefaultSingletonBeanRegistry implements ConfigurableBeanFactory {
 
     @Nullable
     protected Object getSingleton(String beanName, boolean allowEarlyReference) {
+        // 从单例对象缓存中获取beanName（一级缓存）
         Object singletonObject = this.singletonObjects.get(beanName);
+        // 如果一级缓存中没有，并改beanName对应的是单例bean正在创建
         if (singletonObject == null && isSingletonCurrentlyInCreation(beanName)) {
+            //从二级缓存中获取单例对象（earlySingletonObjects里的对象是通过ObjectFactory创建出来的，还未进行属性填充）
             singletonObject = this.earlySingletonObjects.get(beanName);
+            // 如果早起单例对象缓存中没有，并且允许创建早起单例对象引用
             if (singletonObject == null && allowEarlyReference) {
+                // 如果为空，宋定全局变量并进行处理
                 synchronized (this.singletonObjects) {
                     // Consistent creation of early reference within full singleton lock
-                    //一级缓存查找
+                    //一级缓存查找（双重检查）
                     singletonObject = this.singletonObjects.get(beanName);
                     if (singletonObject == null) {
                         //二级缓存查找
                         singletonObject = this.earlySingletonObjects.get(beanName);
                         if (singletonObject == null) {
-                            //本地一级缓存查找
+                            //本地三级缓存查找
                             ObjectFactory<?> singletonFactory = this.singletonFactories.get(beanName);
                             if (singletonFactory != null) {
                                 //执行lamda表达式，生成bean对象
@@ -79,21 +87,29 @@ public class DefaultSingletonBeanRegistry implements ConfigurableBeanFactory {
         return singletonObject;
     }
     public Object getSingleton(String beanName, ObjectFactory<?> singletonFactory) {
-        Object singletonObject = this.singletonObjects.get(beanName);
-        boolean newSingleton = false;
-        if (singletonObject == null) {
-            try {
-                singletonObject = singletonFactory.getObject();
-                newSingleton = true;
-            }
-            catch (IllegalStateException ex) {
-                singletonObject = this.singletonObjects.get(beanName);
-                if (singletonObject == null) {
-                    throw ex;
+        Assert.notNull(beanName, "Bean name must not be null");
+        synchronized (this.singletonObjects) {
+            Object singletonObject = this.singletonObjects.get(beanName);
+            beforeSingletonCreation(beanName);
+            boolean newSingleton = false;
+            if (singletonObject == null) {
+                try {
+                    singletonObject = singletonFactory.getObject();
+                    newSingleton = true;
+                } catch (IllegalStateException ex) {
+                    singletonObject = this.singletonObjects.get(beanName);
+                    if (singletonObject == null) {
+                        throw ex;
+                    }
+                }finally {
+                    afterSingletonCreation(beanName);
+                }
+                if (newSingleton) {
+                    addSingleton(beanName, singletonObject);
                 }
             }
+            return singletonObject;
         }
-        return singletonObject;
     }
 
     @Override
@@ -108,7 +124,9 @@ public class DefaultSingletonBeanRegistry implements ConfigurableBeanFactory {
 
     @Override
     public int getSingletonCount() {
-        return 0;
+        synchronized (this.singletonObjects) {
+            return this.registeredSingletons.size();
+        }
     }
 
     public boolean isSingletonCurrentlyInCreation(String beanName) {
@@ -128,6 +146,18 @@ public class DefaultSingletonBeanRegistry implements ConfigurableBeanFactory {
                 // 将beanName添加已注册的单例集合中（已注册的bean对象）
                 this.registeredSingletons.add(beanName);
             }
+        }
+    }
+
+    protected void beforeSingletonCreation(String beanName) {
+        if (!this.inCreationCheckExclusions.contains(beanName) && !this.singletonsCurrentlyInCreation.add(beanName)) {
+            throw new BeanCreationException(beanName);
+        }
+    }
+
+    protected void afterSingletonCreation(String beanName) {
+        if (!this.inCreationCheckExclusions.contains(beanName) && !this.singletonsCurrentlyInCreation.remove(beanName)) {
+            throw new IllegalStateException("Singleton '" + beanName + "' isn't currently in creation");
         }
     }
 

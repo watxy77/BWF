@@ -3,7 +3,6 @@ package com.bwf.core.context;
 
 import com.bwf.common.annotation.Lifecycle;
 import com.bwf.common.annotation.bootstrap.annotation.Nullable;
-import com.bwf.core.bootstrap.ApplicationContext;
 
 
 import java.io.Closeable;
@@ -21,4 +20,7 @@ public interface ConfigurableApplicationContext extends ApplicationContext, Life
     void close();
     void destroy();
     boolean isActive();
+    Object getComponentBean(String beanName);
+    Object getNodeBean(String beanName);
+
 }

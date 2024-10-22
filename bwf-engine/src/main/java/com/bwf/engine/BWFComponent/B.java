@@ -1,0 +1,28 @@
+package com.bwf.engine.BWFComponent;
+
+import com.bwf.common.annotation.bootstrap.BWFInitializingBean;
+import com.bwf.common.annotation.bootstrap.annotation.BWFAutowired;
+import com.bwf.common.annotation.bootstrap.annotation.BWFComponent;
+import com.bwf.core.eventbus.BWFEventMessageBus;
+
+@BWFComponent
+public class B implements BWFInitializingBean {
+    @BWFAutowired
+    private C c;
+    @BWFAutowired
+    private BWFEventMessageBus eventMessageBus;
+
+    @Override
+    public void afterPropertiesSet() throws Exception {
+        if(c != null){
+            c.text();
+            System.out.println("eventMessageBus------>" + eventMessageBus);
+        }else {
+            System.out.println("a属性为null");
+        }
+    }
+
+    public void text(){
+        System.out.println("bbbbbbb------>"+c);
+    }
+}

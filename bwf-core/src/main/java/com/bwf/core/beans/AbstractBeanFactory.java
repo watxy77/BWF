@@ -1,17 +1,19 @@
 package com.bwf.core.beans;
 
+import com.bwf.common.annotation.bootstrap.BWFInitializingBean;
 import com.bwf.common.annotation.bootstrap.annotation.BWFAutowired;
-import com.bwf.common.annotation.bootstrap.annotation.BWFComponent;
 import com.bwf.common.annotation.bootstrap.annotation.Nullable;
 import com.bwf.common.utils.StringUtils;
 import com.bwf.core.beans.factory.AutowireCapableBeanFactory;
 import com.bwf.core.beans.factory.BeanFactory;
 import com.bwf.core.beans.support.NullBean;
+import com.bwf.core.bootstrap.utils.StartupInfoLogger;
 import com.bwf.core.exception.BeanCreationException;
 import com.bwf.core.exception.BeansException;
 import com.bwf.core.beans.singletonBean.DefaultSingletonBeanRegistry;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -31,16 +33,6 @@ public abstract class AbstractBeanFactory extends DefaultSingletonBeanRegistry i
         return doGetBean(name, null, null, false);
     }
 
-    @Override
-    public <T> T getBean(String name, Class<T> requiredType) throws BeansException {
-        return doGetBean(name, requiredType, null, false);
-    }
-
-    @Override
-    public Object getBean(String name, Object... args) throws BeansException {
-        return doGetBean(name, null, args, false);
-    }
-
     protected <T> T doGetBean(
             String name, @Nullable Class<T> requiredType, @Nullable Object[] args, boolean typeCheckOnly)
             throws BeansException {
@@ -50,9 +42,11 @@ public abstract class AbstractBeanFactory extends DefaultSingletonBeanRegistry i
         Object sharedInstance = getSingleton(beanName);
         // 如果单例bean对象存在，切没有创建bean实例时要使用的参数
         if (sharedInstance != null && args == null) {
+            StartupInfoLogger.addBWFComponentBeanMessage("--->--->doGetBean一级缓存中存在beanName："+beanName+"-->引用地址："+sharedInstance);
 //            bean = getObjectForBeanInstance(sharedInstance, name, beanName, null);
         }else{
-            RootBeanDefinition mbd = getLocalRootBeanDefinition(beanName);
+            StartupInfoLogger.addBWFComponentBeanMessage("--->--->doGetBean一级缓存中不存在beanName："+beanName+"-->引用地址："+sharedInstance);
+            RootBeanDefinition mbd = getLocalRootBeanDefinition(name);
             mbd.setBeanClassName(name);
             if (mbd.isSingleton()) {
                 sharedInstance = getSingleton(beanName, () -> {
@@ -65,16 +59,7 @@ public abstract class AbstractBeanFactory extends DefaultSingletonBeanRegistry i
                 });
             }
         }
-        return (T) bean;
-    }
-
-    protected String transformedBeanName(String className) {
-        String beanName = "";
-        if(StringUtils.isNotEmpty(className)){
-            int startIndex = className.lastIndexOf(".");
-            beanName = className.substring(startIndex + 1, className.length());
-        }
-       return beanName;
+        return (T) sharedInstance;
     }
 
     @Override
@@ -133,6 +118,7 @@ public abstract class AbstractBeanFactory extends DefaultSingletonBeanRegistry i
         if (earlySingletonExposure) {
             //循环依赖添加三级缓存
             // 为了避免后期循环依赖，可在bean初始化完成前将创建实例的ObjectFactory加入工厂
+            StartupInfoLogger.addBWFComponentBeanMessage("--->--->--->创建bean并添加三级缓存beanName："+beanName+" -->引用地址："+bean);
             addSingletonFactory(beanName, () -> getEarlyBeanReference(beanName, rbd, bean));
         }
         // Initialize the bean instance.
@@ -145,7 +131,8 @@ public abstract class AbstractBeanFactory extends DefaultSingletonBeanRegistry i
         } catch (Throwable ex) {
             throw new BeanCreationException("Initialization of bean failed");
         }
-        return null;
+//        StartupInfoLogger.addBWFComponentBeanMessage("--->--->--->开始创建代理对象：" + instanceWrapper);
+        return exposedObject;
     }
 
     /**属性填充*/
@@ -156,19 +143,22 @@ public abstract class AbstractBeanFactory extends DefaultSingletonBeanRegistry i
         try{
             //获取Bean引用
             Class<?> clazz = rbd.getBeanClass();
-            Object instance = clazz.getConstructor().newInstance();
+            Object instance = rbd.getBeanInstance();
             for(Field field :clazz.getDeclaredFields()){
-                field.setAccessible(true);
                 //获取属性名称
                 String fieldName = field.getName();
                 Class<?> type = field.getType();
                 if(field.isAnnotationPresent(BWFAutowired.class)){
                     //获取依赖注入需要的bean对象
+                    StartupInfoLogger.addBWFComponentBeanMessage("--->--->--->--->开始属性填充beanName："+type.getName()+" -->引用地址：" + instance);
                     Object bean = getBean(type.getName());
+                    field.setAccessible(true);
+                    field.set(instance, bean);
+                    StartupInfoLogger.addBWFComponentBeanMessage("--->--->--->--->--->getBean("+type.getName()+")属性填充fieldName："+fieldName+" -->instance引用：【"+instance+"】" + "填充bean引用：【"+bean+"】");
                 }
             }
-        }catch (Exception e){
-            e.printStackTrace();
+        } catch (IllegalAccessException e) {
+            throw new RuntimeException(e);
         }
 
 
@@ -177,7 +167,14 @@ public abstract class AbstractBeanFactory extends DefaultSingletonBeanRegistry i
     /**初始化bean*/
     protected Object initializeBean(String beanName, Object bean, @Nullable RootBeanDefinition rbd) {
         Object wrappedBean = bean;
-
+//        调用初始化方法
+        if(wrappedBean instanceof BWFInitializingBean){
+            try {
+                ((BWFInitializingBean) wrappedBean).afterPropertiesSet();
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+        }
         return wrappedBean;
     }
 
@@ -188,7 +185,7 @@ public abstract class AbstractBeanFactory extends DefaultSingletonBeanRegistry i
         BeanWrapper bw = null;
         try {
             Class<?> beanClass = rbd.getBeanClass();
-            Object beanInstance = beanClass.getConstructor().newInstance();
+            Object beanInstance = rbd.getBeanInstance();
             bw = new BeanWrapperImpl();
             bw.setWrappedInstance(beanInstance);
 
@@ -231,31 +228,38 @@ public abstract class AbstractBeanFactory extends DefaultSingletonBeanRegistry i
 
 
 
-    protected RootBeanDefinition getLocalRootBeanDefinition(String beanName) throws BeansException {
+    protected RootBeanDefinition getLocalRootBeanDefinition(String className) throws BeansException {
+        String beanName = transformedBeanName(className);
         //如果beanName没有设置,获取名称
         RootBeanDefinition rbd = this.mergedBeanDefinitions.get(beanName);
         if (rbd != null) {
             return rbd;
+        }else{
+
         }
-        return getLocalRootBeanDefinition(beanName, rbd);
+        return getLocalRootBeanDefinition(className, beanName, rbd);
     }
 
-    protected RootBeanDefinition getLocalRootBeanDefinition(String beanName, RootBeanDefinition rbd)
+    protected RootBeanDefinition getLocalRootBeanDefinition(String className, String beanName, RootBeanDefinition rbd)
             throws BeansException {
         synchronized (this.mergedBeanDefinitions) {
             RootBeanDefinition mbd = null;
 //            RootBeanDefinition previous = null;
+            //再次获取缓存对象中的beanName
             if (rbd == null) {
                 mbd = this.mergedBeanDefinitions.get(beanName);
             }
-            if (mbd == null) {
-                mbd = new RootBeanDefinition(mbd);
+            try{
+                if (mbd == null) {
+                    mbd = new RootBeanDefinition(mbd);
 //                previous = mbd;
-                mbd.setBeanName(beanName);
-//                mbd.setBeanClass(beanClass);
-
-                this.mergedBeanDefinitions.put(beanName, mbd);
-
+                    mbd.setBeanName(beanName);
+                    mbd.setBeanClassName(className);
+                    mbd.setBeanInstance(mbd.getBeanClass().newInstance());
+                    this.mergedBeanDefinitions.put(beanName, mbd);
+                }
+            }catch (Exception e){
+                e.printStackTrace();
             }
             return mbd;
         }
@@ -263,23 +267,29 @@ public abstract class AbstractBeanFactory extends DefaultSingletonBeanRegistry i
 
     @Override
     public void preInstantiateSingletons(String className, Class<?> clazz) throws BeansException {
-        BWFComponent declaredAnnotations = clazz.getDeclaredAnnotation(BWFComponent.class);
-        String beanName = declaredAnnotations.value();
-        if(StringUtils.isEmpty(beanName)){
-            beanName = transformedBeanName(className);
-        }
-        RootBeanDefinition bd = getLocalRootBeanDefinition(beanName);
+        RootBeanDefinition bd = getLocalRootBeanDefinition(className);
         bd.setBeanClass(clazz);
+        StartupInfoLogger.addBWFComponentBeanMessage("--->RootBeanDefinition:" + bd);
         //条件判断，单例
         if (bd.isSingleton()) {
-            Object bean = getBean(bd.getBeanName());
+            Object bean = getBean(className);
+
         }else{
-            getBean(beanName);
+            getBean(className);
         }
     }
 
     @Override
     public void destroyBean(Object existingBean) {
 
+    }
+
+    protected String transformedBeanName(String className) {
+        String beanName = "";
+        if(StringUtils.isNotEmpty(className)){
+            int startIndex = className.lastIndexOf(".");
+            beanName = className.substring(startIndex + 1, className.length());
+        }
+        return beanName;
     }
 }

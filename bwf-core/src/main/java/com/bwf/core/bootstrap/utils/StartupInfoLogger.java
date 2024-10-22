@@ -14,6 +14,8 @@ import java.time.Duration;
 @Slf4j
 public class StartupInfoLogger {
     private final Class<?> sourceClass;
+    private final static String LINE_CHARACTER = "\n";
+    private static StringBuilder BWFComponentBeanMessage = new StringBuilder();
     public StartupInfoLogger(Class<?> sourceClass) {
         this.sourceClass = sourceClass;
     }
@@ -52,6 +54,14 @@ public class StartupInfoLogger {
         message.append(" \n");
         message.append("Cache Plugin Amount ："+ cachePluginCount );
         return message;
+    }
+
+    public static void addBWFComponentBeanMessage(String msg) {
+        BWFComponentBeanMessage.append(msg + LINE_CHARACTER);
+    }
+
+    public static CharSequence lodeBWFComponentBeanMessage(){
+        return BWFComponentBeanMessage;
     }
 
     private void appendApplicationName(StringBuilder message) {

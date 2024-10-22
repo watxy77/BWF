@@ -8,6 +8,8 @@ public class RootBeanDefinition implements BeanDefinition, Cloneable{
     @Nullable
     private volatile Class beanClass;
     @Nullable
+    private volatile Object beanInstance;
+    @Nullable
     private volatile String className;
     @Nullable
     private volatile String beanName;
@@ -91,5 +93,14 @@ public class RootBeanDefinition implements BeanDefinition, Cloneable{
     @Override
     public void setBeanClassName(String beanClassName) {
         this.className = beanClassName;
+    }
+
+    @Nullable
+    public Object getBeanInstance() {
+        return beanInstance;
+    }
+
+    public void setBeanInstance(@Nullable Object beanInstance) {
+        this.beanInstance = beanInstance;
     }
 }

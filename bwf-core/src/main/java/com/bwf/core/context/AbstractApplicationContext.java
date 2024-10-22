@@ -3,15 +3,15 @@ package com.bwf.core.context;
 import com.bwf.common.annotation.bootstrap.annotation.BWFComponent;
 import com.bwf.common.annotation.bootstrap.annotation.BWFNode;
 import com.bwf.common.utils.StringUtils;
-import com.bwf.core.beans.RootBeanDefinition;
-import com.bwf.core.bootstrap.ApplicationContext;
+import com.bwf.core.bootstrap.utils.StartupInfoLogger;
 import com.bwf.core.eventbus.BWFEventMessageBus;
+import com.bwf.core.eventbus.model.EventEnum;
+import com.bwf.core.eventbus.subscription.NodeHandleSub;
 import com.bwf.core.exception.BeansException;
 import com.bwf.core.io.FileUtil;
 
 import java.io.File;
 import java.net.URL;
-import java.time.Duration;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -36,8 +36,12 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
     private final Object startupShutdownMonitor = new Object();
 
 
-
-
+    public BWFNodeBeanContext getBWFNodeBeanContext(){
+        return bwfNodeBeanContext;
+    }
+    public BWFComponentBeanContext getBWFComponentBeanContext(){
+        return bwfComponentBeanContext;
+    }
     public static void pubEvent(String code, Object o){
         eventMessageBusInstance.setPubEvent(code, o);
     }
@@ -46,34 +50,10 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
         eventMessageBusInstance.setPubEvent(code, o);
     }
 
-    @Override
-    public void start() {
-
-    }
-
-    @Override
-    public void stop() {
-
-    }
 
     @Override
     public boolean isRunning() {
         return false;
-    }
-
-    @Override
-    public Object getBean(String name) throws BeansException {
-        return null;
-    }
-
-    @Override
-    public <T> T getBean(String name, Class<T> requiredType) throws BeansException {
-        return null;
-    }
-
-    @Override
-    public Object getBean(String name, Object... args) throws BeansException {
-        return null;
     }
 
     @Override
@@ -136,7 +116,8 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
             //实例化BWFNode单实例（非懒加载的）bean的声明周期（进行bean对象的创建工作）
             finishBWFNodeBeanFactoryInitialization();
             //解析注解-BWFGlobalConfigScan
-            System.out.println(11111);
+
+            System.out.println(StartupInfoLogger.lodeBWFComponentBeanMessage());
         }
     }
 
@@ -174,10 +155,12 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
 
     protected void finishBWFComponentBeanFactoryInitialization() {
         try{
+            StartupInfoLogger.addBWFComponentBeanMessage("---------BWFComponentBean生成---------");
+            StartupInfoLogger.addBWFComponentBeanMessage("扫描出具有BWFComponent注解的类数量：" + bwfComponentClazzMap.size());
             for (Map.Entry<String, Class<?>> entry : bwfComponentClazzMap.entrySet()) {
                 String className = entry.getKey();
                 Class<?> clazz = entry.getValue();
-
+                StartupInfoLogger.addBWFComponentBeanMessage("className：" + className);
                 //解析注解-BWFComponent
                 bwfComponentBeanContext.preInstantiateSingletons(className, clazz);
             }
@@ -188,18 +171,15 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
 
     protected void finishBWFNodeBeanFactoryInitialization() {
         try{
+            StartupInfoLogger.addBWFComponentBeanMessage("---------BWFNodeBean生成---------");
+            StartupInfoLogger.addBWFComponentBeanMessage("扫描出具有BWFNode注解的类数量：" + bwfNodeClazzMap.size());
             for (Map.Entry<String, Class<?>> entry : bwfNodeClazzMap.entrySet()) {
                 String className = entry.getKey();
                 Class<?> clazz = entry.getValue();
-                BWFNode declaredAnnotations = (BWFNode) clazz.getDeclaredAnnotation(BWFNode.class);
-                String beanName = declaredAnnotations.value();
-                //如果beanName没有设置,获取名称
-                if(StringUtils.isEmpty(beanName)){
-                    int startIndex = className.lastIndexOf(".");
-                    beanName = className.substring(startIndex + 1, className.length());
-                }
-                //解析注解-BWFComponent
-//                bwfNodeBeanContext.createBean(beanName, clazz);
+                StartupInfoLogger.addBWFComponentBeanMessage("className：" + className);
+                //解析注解-BWFNode
+                bwfNodeBeanContext.preInstantiateSingletons(className, clazz);
+
             }
         }catch (Exception e){
             e.printStackTrace();
@@ -210,6 +190,13 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
         this.startupDate = System.currentTimeMillis();
         this.closed.set(false);
         this.active.set(true);
+        this.primarySources = new LinkedHashSet(Arrays.asList(primarySources));
+        this.eventMessageBusInstance = BWFEventMessageBus.getInstance();
+        this.eventMessageBusInstance.setPubEvent(EventEnum.NODE_HANDLE_SUB.getCode(), new NodeHandleSub());
+        this.bwfComponentBeanContext = new BWFComponentBeanContext();
+        this.bwfNodeBeanContext = new BWFNodeBeanContext();
+        //注入系统ComponentBean eventMessageBus到BWFComponent集合中
+        bwfComponentBeanContext.registerSingleton("BWFEventMessageBus", this.eventMessageBusInstance);
 
         //扫描整个工程类
         ClassLoader mainClassLoader = mainApplicationClass.getClassLoader();
@@ -236,12 +223,7 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
             }
         }
 
-        this.primarySources = new LinkedHashSet(Arrays.asList(primarySources));
-        this.eventMessageBusInstance = BWFEventMessageBus.getInstance();
-        this.bwfComponentBeanContext = new BWFComponentBeanContext();
-        this.bwfNodeBeanContext = new BWFNodeBeanContext();
-        //注入系统ComponentBean eventMessageBus到BWFComponent集合中
-        bwfComponentBeanContext.registerSingleton("eventMessageBus", this.eventMessageBusInstance);
+
     }
 
     protected Class<?> deduceMainApplicationClass() {

@@ -99,7 +99,7 @@ public class BWFComponentManager_1 implements BWFAnnotationManager {
         BWFComponentBeanDefinition BWFBeanDefinition = new BWFComponentBeanDefinition();
         BWFBeanDefinition.setClassName(beanName);
         BWFBeanDefinition.setClazz(clazz);
-        BWFBeanDefinition.setType(_CONSUMER);
+//        BWFBeanDefinition.setType(_CONSUMER);
 //        if(clazz.isAnnotationPresent(BWFScope.class)){
 //            BWFScope declaredScope = (BWFScope) clazz.getDeclaredAnnotation(BWFScope.class);
 //            BWFBeanDefinition.setScope(PROTOTYPE);

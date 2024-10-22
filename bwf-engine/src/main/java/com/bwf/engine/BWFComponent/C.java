@@ -6,9 +6,9 @@ import com.bwf.common.annotation.bootstrap.annotation.BWFComponent;
 import com.bwf.core.eventbus.BWFEventMessageBus;
 
 @BWFComponent
-public class b  implements BWFInitializingBean {
+public class C implements BWFInitializingBean {
     @BWFAutowired
-    private a a;
+    private A a;
     @BWFAutowired
     private BWFEventMessageBus eventMessageBus;
 
@@ -17,10 +17,12 @@ public class b  implements BWFInitializingBean {
         if(a != null){
             a.text();
             System.out.println("eventMessageBus------>" + eventMessageBus);
+        }else {
+            System.out.println("a属性为null");
         }
     }
 
     public void text(){
-        System.out.println("bbbbbb------>"+a);
+        System.out.println("ccccc------>"+a);
     }
 }
