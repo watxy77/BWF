@@ -1,7 +1,7 @@
 package com.bwf.engine.BWFComponent;
 
 import com.bwf.common.annotation.bootstrap.BWFInitializingBean;
-import com.bwf.common.annotation.bootstrap.annotation.BWFAutowired;
+import com.bwf.core.beans.factory.annotation.BWFAutowired;
 import com.bwf.common.annotation.bootstrap.annotation.BWFComponent;
 import com.bwf.core.eventbus.BWFEventMessageBus;
 

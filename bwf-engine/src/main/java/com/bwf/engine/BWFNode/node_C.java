@@ -1,6 +1,6 @@
 package com.bwf.engine.BWFNode;
 
-import com.bwf.common.annotation.bootstrap.annotation.BWFAutowired;
+import com.bwf.core.beans.factory.annotation.BWFAutowired;
 import com.bwf.common.annotation.bootstrap.annotation.BWFNode;
 
 @BWFNode

@@ -1,8 +1,7 @@
 package com.bwf.core.eventbus.subscription;
 
 
-import com.bwf.common.annotation.bootstrap.annotation.BWFAutowired;
-import com.bwf.common.annotation.bootstrap.annotation.BWFComponent;
+import com.bwf.core.beans.factory.annotation.BWFAutowired;
 import com.bwf.core.eventbus.BWFEventMessageBus;
 import com.bwf.core.eventbus.IEventSub.IEventSubArgsAndObject;
 import com.bwf.core.node.BWFNodeBeanDefinition;

@@ -1,7 +1,7 @@
 package com.bwf.core.beans;
 
 import com.bwf.common.annotation.bootstrap.BWFInitializingBean;
-import com.bwf.common.annotation.bootstrap.annotation.BWFAutowired;
+import com.bwf.core.beans.factory.annotation.BWFAutowired;
 import com.bwf.common.annotation.bootstrap.annotation.Nullable;
 import com.bwf.common.utils.StringUtils;
 import com.bwf.core.beans.factory.AutowireCapableBeanFactory;
@@ -13,7 +13,6 @@ import com.bwf.core.exception.BeansException;
 import com.bwf.core.beans.singletonBean.DefaultSingletonBeanRegistry;
 
 import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;

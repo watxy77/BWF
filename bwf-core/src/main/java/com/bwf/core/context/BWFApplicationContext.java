@@ -53,11 +53,6 @@ public class BWFApplicationContext extends AbstractApplicationContext{
     }
 
     @Override
-    public Object getBean(String name) throws BeansException {
-        return null;
-    }
-
-    @Override
     public Object getComponentBean(String beanName) {
         return this.getBWFComponentBeanContext().getBean(beanName);
     }
@@ -65,15 +60,5 @@ public class BWFApplicationContext extends AbstractApplicationContext{
     @Override
     public Object getNodeBean(String beanName) {
         return this.getBWFNodeBeanContext().getBean(beanName);
-    }
-
-    @Override
-    public void start() {
-
-    }
-
-    @Override
-    public void stop() {
-
     }
 }

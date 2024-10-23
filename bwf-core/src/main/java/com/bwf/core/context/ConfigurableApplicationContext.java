@@ -1,6 +1,5 @@
 package com.bwf.core.context;
 
-
 import com.bwf.common.annotation.Lifecycle;
 import com.bwf.common.annotation.bootstrap.annotation.Nullable;
 
@@ -15,7 +14,7 @@ public interface ConfigurableApplicationContext extends ApplicationContext, Life
     void setId(String id);
     void setParent(@Nullable ApplicationContext parent);
     void setClassLoader(ClassLoader classLoader);
-    void refresh() throws IllegalStateException;//BeansException,
+    void refresh() throws IllegalStateException;//BeansException
     void registerShutdownHook();
     void close();
     void destroy();

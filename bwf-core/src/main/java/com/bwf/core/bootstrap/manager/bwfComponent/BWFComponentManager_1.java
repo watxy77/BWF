@@ -2,7 +2,7 @@ package com.bwf.core.bootstrap.manager.bwfComponent;
 
 import com.bwf.common.annotation.bootstrap.BWFBeanDefinition;
 import com.bwf.common.annotation.bootstrap.BWFInitializingBean;
-import com.bwf.common.annotation.bootstrap.annotation.BWFAutowired;
+import com.bwf.core.beans.factory.annotation.BWFAutowired;
 import com.bwf.common.annotation.bootstrap.annotation.BWFComponent;
 import com.bwf.common.manager.BWFAnnotationManager;
 import com.bwf.common.utils.StringUtils;

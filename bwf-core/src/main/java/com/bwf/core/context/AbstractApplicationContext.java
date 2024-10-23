@@ -153,6 +153,21 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
         return false;
     }
 
+    @Override
+    public void start() {
+
+    }
+
+    @Override
+    public void stop() {
+
+    }
+
+    @Override
+    public Object getBean(String name) throws BeansException {
+        return null;
+    }
+
     protected void finishBWFComponentBeanFactoryInitialization() {
         try{
             StartupInfoLogger.addBWFComponentBeanMessage("---------BWFComponentBean生成---------");
@@ -242,4 +257,5 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
 
         return null;
     }
+
 }

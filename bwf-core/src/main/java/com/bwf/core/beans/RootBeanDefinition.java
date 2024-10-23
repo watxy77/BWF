@@ -1,7 +1,6 @@
 package com.bwf.core.beans;
 
 import com.bwf.common.annotation.bootstrap.annotation.Nullable;
-import com.bwf.core.beans.factory.BeanDefinition;
 
 public class RootBeanDefinition implements BeanDefinition, Cloneable{
     public static final String SCOPE_DEFAULT = SCOPE_SINGLETON;
