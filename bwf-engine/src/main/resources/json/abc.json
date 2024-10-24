@@ -1,17 +1,19 @@
 {
   "bwf-node":[
-    { "node_id": "a1",
-      "node_name": "aaa",
-      "node_type": 1,
-      "node_class": "",
-      "proxy_class": "",
+    {
+      "beanId": "a1",
+      "beanName": "aaa",
+      "beanType": 1,
+      "beanClass": "",
+      "proxyClass": "",
       "isSingleton": true
     },
-    { "node_id": "b1",
-      "node_name": "bbb",
-      "node_type": 1,
-      "node_class": "",
-      "proxy_class": "",
+    {
+      "beanId": "b1",
+      "beanName": "bbb",
+      "beanType": 1,
+      "beanClass": "",
+      "proxyClass": "",
       "isSingleton": true
     }
   ]

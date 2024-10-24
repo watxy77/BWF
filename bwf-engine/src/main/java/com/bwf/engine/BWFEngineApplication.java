@@ -12,7 +12,7 @@ import com.bwf.engine.BWFNode.node_C;
 @BWFGlobalConfigScan({"engine.yml"})
 @BWFConfigBeanXML("")
 @BWFConfigBeanYAML("")
-//@BWFConfigBeanJSON("json/abc.json")
+@BWFConfigBeanJSON("json/abc.json")
 public class BWFEngineApplication {
     public static void main(String[] args) {
         ConfigurableApplicationContext run = BWFApplicationContext.run(BWFEngineApplication.class, args);

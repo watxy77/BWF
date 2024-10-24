@@ -30,7 +30,7 @@ public class AnnotationBeanDefinitionReaderResolver extends AbstractBeanDefiniti
         File file = encodedResource.getFile(encodedResource.getURL(classLoader, ""));
         List<String> flieList = new ArrayList<>();
         FileUtil.traverseFiles(file, flieList);
-        List<BeanDefinitionDocument> bdreList = new ArrayList<>();
+        List<BeanDefinitionDocument> bddList = new ArrayList<>();
         for (String f : flieList) {
             if (f.endsWith(_CLASS)) {
                 String classPath = f.substring(f.indexOf(_COM), f.indexOf(_CLASS));
@@ -41,21 +41,22 @@ public class AnnotationBeanDefinitionReaderResolver extends AbstractBeanDefiniti
 
                     if(clazz.isAnnotationPresent(BWFNode.class)){
 
-                        BeanDefinitionDocument bdre = new BeanDefinitionDocument();
-                        bdre.setNode_id(className);
-                        bdre.setNode_name(className);
-                        bdre.setClass_name(className);
-                        bdre.setClass_path(classPath);
-                        bdre.setT_class_path(t_classPath);
-                        bdre.setNode_type(BeanNodeEnum.NODE_JAVA.getCode());
-                        bdre.setNode_class(className);
+                        BeanDefinitionDocument bdd = new BeanDefinitionDocument();
+                        bdd.setBeanId(className);
+                        bdd.setBeanName(className);
+                        bdd.setBeanType(BeanNodeEnum.NODE_JAVA.getCode());
+                        bdd.setBeanClass(className);
+                        bdd.setClassName(className);
+                        bdd.setClassPath(classPath);
+                        bdd.settClassPath(t_classPath);
+
                         // 是否单例Bean
                         if(clazz.isAnnotationPresent(BWFScope.class)){
-                            bdre.setSingleton(false);
+                            bdd.setSingleton(false);
                         }else{
-                            bdre.setSingleton(true);
+                            bdd.setSingleton(true);
                         }
-                        bdreList.add(bdre);
+                        bddList.add(bdd);
                     }
                 }catch (Exception e){
                     e.printStackTrace();
@@ -63,7 +64,7 @@ public class AnnotationBeanDefinitionReaderResolver extends AbstractBeanDefiniti
 
             }
         }
-        rCount += this.loadBeanDefinitions(bdreList);
+        rCount += this.loadBeanDefinitions(bddList);
         return rCount;
     }
 }
