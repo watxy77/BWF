@@ -2,7 +2,7 @@ package com.bwf.core.beans.reader.resolver;
 
 import com.alibaba.fastjson.JSONObject;
 import com.bwf.core.beans.reader.AbstractBeanDefinitionReader;
-import com.bwf.core.beans.reader.BeanDefinitionReaderEntity;
+import com.bwf.core.beans.reader.BeanDefinitionDocument;
 import com.bwf.core.beans.resource.EncodedResource;
 import com.bwf.core.context.BWFNodeBeanContext;
 import com.bwf.core.exception.BeanDefinitionStoreException;
@@ -18,6 +18,7 @@ public class JSONBeanDefinitionReaderResolver extends AbstractBeanDefinitionRead
         super(bwfNodeBeanContext);
     }
 
+    @Override
     public int loadBeanDefinitions(EncodedResource resource) throws BeanDefinitionStoreException {
         String[] pathArr = resource.getPath();
         int rCount = 0;
@@ -28,7 +29,7 @@ public class JSONBeanDefinitionReaderResolver extends AbstractBeanDefinitionRead
                     String content = FileUtils.readFileToString(file, this.charsetName);
                     JSONObject beanJson = JSONObject.parseObject(content);
                     String bwfNodeArr = beanJson.getString(this.bwf_node);
-                    List<BeanDefinitionReaderEntity> bdreList = JSONObject.parseArray(bwfNodeArr, BeanDefinitionReaderEntity.class);
+                    List<BeanDefinitionDocument> bdreList = JSONObject.parseArray(bwfNodeArr, BeanDefinitionDocument.class);
                     rCount += this.loadBeanDefinitions(bdreList);
                 } catch (IOException e) {
                     e.printStackTrace();

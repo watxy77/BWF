@@ -13,6 +13,7 @@ import java.time.Duration;
  * @description
  */
 public class BWFApplicationContext extends AbstractApplicationContext{
+    private boolean registerShutdownHook = true;
 
     public BWFApplicationContext(Class<?>... primarySources) {
         this((ResourceLoader)null, primarySources);
@@ -33,6 +34,9 @@ public class BWFApplicationContext extends AbstractApplicationContext{
             //解析注解-BWFApplication
             BWFApplication declaredAnnotation = mainApplicationClass.getDeclaredAnnotation(BWFApplication.class);
             if(declaredAnnotation != null){
+                if (this.registerShutdownHook) {
+//                    shutdownHook.registerApplicationContext(context);
+                }
                 refresh();
             }else{
                 throw new NullPointerException("未发现BWFApplication注解类，无法初始化BWF框架。请在main启动函数类上添加！");
@@ -60,5 +64,10 @@ public class BWFApplicationContext extends AbstractApplicationContext{
     @Override
     public Object getNodeBean(String beanName) {
         return this.getBWFNodeBeanContext().getBean(beanName);
+    }
+
+    @Override
+    protected void onRefresh() throws BeansException {
+        super.onRefresh();
     }
 }

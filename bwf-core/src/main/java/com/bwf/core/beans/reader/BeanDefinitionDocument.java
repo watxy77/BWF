@@ -1,6 +1,6 @@
 package com.bwf.core.beans.reader;
 
-public class BeanDefinitionReaderEntity {
+public class BeanDefinitionDocument {
     private String node_id;
     private String node_name;
     private int node_type;

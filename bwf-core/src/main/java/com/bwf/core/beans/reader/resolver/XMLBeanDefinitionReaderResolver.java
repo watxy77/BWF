@@ -15,6 +15,8 @@ public class XMLBeanDefinitionReaderResolver extends AbstractBeanDefinitionReade
         super(bwfNodeBeanContext);
     }
 
+
+    @Override
     public int loadBeanDefinitions(EncodedResource resource) throws BeanDefinitionStoreException {
 
         for (String path : resource.getPath()) {

@@ -13,6 +13,7 @@ public class YAMLBeanDefinitionReaderResolver extends AbstractBeanDefinitionRead
         super(bwfNodeBeanContext);
     }
 
+    @Override
     public int loadBeanDefinitions(EncodedResource resource) throws BeanDefinitionStoreException {
         return 0;
     }

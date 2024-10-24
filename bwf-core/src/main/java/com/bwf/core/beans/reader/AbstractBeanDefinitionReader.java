@@ -1,18 +1,11 @@
 package com.bwf.core.beans.reader;
 
-import com.alibaba.fastjson.JSONObject;
-import com.bwf.common.annotation.bootstrap.annotation.BWFComponent;
-import com.bwf.common.annotation.bootstrap.annotation.BWFNode;
 import com.bwf.common.annotation.bootstrap.annotation.Nullable;
-import com.bwf.core.beans.resource.EncodedResource;
 import com.bwf.core.context.BWFNodeBeanContext;
 import com.bwf.core.exception.BeanDefinitionStoreException;
-import com.bwf.core.io.FileUtil;
 import com.bwf.core.io.Resource;
+import org.xml.sax.InputSource;
 
-import java.io.File;
-import java.net.URL;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
@@ -36,22 +29,22 @@ public abstract class AbstractBeanDefinitionReader implements BeanDefinitionRead
     }
 
     @Override
-    public int loadBeanDefinitions(List<BeanDefinitionReaderEntity> bdreList) throws BeanDefinitionStoreException {
+    public int loadBeanDefinitions(List<BeanDefinitionDocument> bddList) throws BeanDefinitionStoreException {
         int rCount = 0;
-        for (BeanDefinitionReaderEntity beanDefinitionReaderEntity : bdreList) {
-            rCount += this.loadBeanDefinitions(beanDefinitionReaderEntity);
+        for (BeanDefinitionDocument beanDefinitionDocument : bddList) {
+            rCount += this.loadBeanDefinitions(beanDefinitionDocument);
         }
         return rCount;
     }
 
     @Override
-    public int loadBeanDefinitions(BeanDefinitionReaderEntity bdre) throws BeanDefinitionStoreException {
-        return loadBeanDefinitions(bdre, null);
+    public int loadBeanDefinitions(BeanDefinitionDocument bdd) throws BeanDefinitionStoreException {
+        return doLoadBeanDefinitions(bdd, null);
     }
 
-    public int loadBeanDefinitions(BeanDefinitionReaderEntity bdre, @Nullable Set<Resource> actualResources) throws BeanDefinitionStoreException {
+    protected int doLoadBeanDefinitions(BeanDefinitionDocument bdd, @Nullable Set<Resource> actualResources){
         int rCount = 1;
-        // 处理beanNode加载
+
         return rCount;
     }
 }

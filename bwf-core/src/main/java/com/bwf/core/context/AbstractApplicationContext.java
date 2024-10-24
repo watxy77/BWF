@@ -39,8 +39,13 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
     private BWFNodeBeanContext bwfNodeBeanContext;
 
     /**“刷新”和“销毁”的监视器*/
-    private final Object startupShutdownMonitor = new Object();
+    private Object startupShutdownMonitor = new Object();
+    @Nullable
+    private Thread shutdownHook;
 
+    public AbstractApplicationContext() {
+        this.startupShutdownMonitor = new Object();
+    }
 
     public BWFNodeBeanContext getBWFNodeBeanContext(){
         return bwfNodeBeanContext;
@@ -119,6 +124,8 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
             /**初始化BeanFactory*/
             obtainBeanFactoryInitialization();
 
+
+            this.onRefresh();
             System.out.println(StartupInfoLogger.lodeBeanMessage());
         }
     }
@@ -327,6 +334,9 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
         }
 
         return null;
+    }
+
+    protected void onRefresh() throws BeansException {
     }
 
 }
