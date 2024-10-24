@@ -1,0 +1,18 @@
+{
+  "bwf-node":[
+    { "node_id": "a1",
+      "node_name": "aaa",
+      "node_type": 1,
+      "node_class": "",
+      "proxy_class": "",
+      "isSingleton": true
+    },
+    { "node_id": "b1",
+      "node_name": "bbb",
+      "node_type": 1,
+      "node_class": "",
+      "proxy_class": "",
+      "isSingleton": true
+    }
+  ]
+}

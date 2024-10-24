@@ -2,24 +2,42 @@ package com.bwf.core.beans.resource;
 
 import com.bwf.common.annotation.bootstrap.annotation.Nullable;
 
-import java.io.IOException;
-import java.io.InputStream;
-
-public class EncodedResource extends AbstractResource{
+public class EncodedResource extends AbstractResource {
     @Nullable
-    private final String path;
+    private String[] path;
+    @Nullable
+    private int type;
+    private Class<?> targetClass;
 
-    public EncodedResource(@Nullable String path) {
+
+    public EncodedResource(@Nullable String[] path, @Nullable int type, Class<?> targetClass) {
+        this.path = path;
+        this.type = type;
+        this.targetClass = targetClass;
+    }
+
+    @Nullable
+    public String[] getPath() {
+        return path;
+    }
+
+    public void setPath(@Nullable String[] path) {
         this.path = path;
     }
 
-    @Override
-    public InputStream getInputStream() throws IOException {
-        return null;
+    public int getType() {
+        return type;
     }
 
-    @Override
-    public String getDescription() {
-        return null;
+    public void setType(int type) {
+        this.type = type;
+    }
+
+    public Class<?> getTargetClass() {
+        return targetClass;
+    }
+
+    public void setTargetClass(Class<?> targetClass) {
+        this.targetClass = targetClass;
     }
 }

@@ -15,7 +15,7 @@ import java.time.Duration;
 public class StartupInfoLogger {
     private final Class<?> sourceClass;
     private final static String LINE_CHARACTER = "\n";
-    private static StringBuilder BWFComponentBeanMessage = new StringBuilder();
+    private static StringBuilder loadBeanMessage = new StringBuilder();
     public StartupInfoLogger(Class<?> sourceClass) {
         this.sourceClass = sourceClass;
     }
@@ -56,12 +56,12 @@ public class StartupInfoLogger {
         return message;
     }
 
-    public static void addBWFComponentBeanMessage(String msg) {
-        BWFComponentBeanMessage.append(msg + LINE_CHARACTER);
+    public static void addLoadBeanMessage(String msg) {
+        loadBeanMessage.append(msg + LINE_CHARACTER);
     }
 
-    public static CharSequence lodeBWFComponentBeanMessage(){
-        return BWFComponentBeanMessage;
+    public static CharSequence lodeBeanMessage(){
+        return loadBeanMessage;
     }
 
     private void appendApplicationName(StringBuilder message) {

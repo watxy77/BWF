@@ -41,10 +41,10 @@ public abstract class AbstractBeanFactory extends DefaultSingletonBeanRegistry i
         Object sharedInstance = getSingleton(beanName);
         // 如果单例bean对象存在，切没有创建bean实例时要使用的参数
         if (sharedInstance != null && args == null) {
-            StartupInfoLogger.addBWFComponentBeanMessage("--->--->doGetBean一级缓存中存在beanName："+beanName+"-->引用地址："+sharedInstance);
+            StartupInfoLogger.addLoadBeanMessage("--->--->doGetBean一级缓存中存在beanName："+beanName+"-->引用地址："+sharedInstance);
 //            bean = getObjectForBeanInstance(sharedInstance, name, beanName, null);
         }else{
-            StartupInfoLogger.addBWFComponentBeanMessage("--->--->doGetBean一级缓存中不存在beanName："+beanName+"-->引用地址："+sharedInstance);
+            StartupInfoLogger.addLoadBeanMessage("--->--->doGetBean一级缓存中不存在beanName："+beanName+"-->引用地址："+sharedInstance);
             RootBeanDefinition mbd = getLocalRootBeanDefinition(name);
             mbd.setBeanClassName(name);
             if (mbd.isSingleton()) {
@@ -117,7 +117,7 @@ public abstract class AbstractBeanFactory extends DefaultSingletonBeanRegistry i
         if (earlySingletonExposure) {
             //循环依赖添加三级缓存
             // 为了避免后期循环依赖，可在bean初始化完成前将创建实例的ObjectFactory加入工厂
-            StartupInfoLogger.addBWFComponentBeanMessage("--->--->--->创建bean并添加三级缓存beanName："+beanName+" -->引用地址："+bean);
+            StartupInfoLogger.addLoadBeanMessage("--->--->--->创建bean并添加三级缓存beanName："+beanName+" -->引用地址："+bean);
             addSingletonFactory(beanName, () -> getEarlyBeanReference(beanName, rbd, bean));
         }
         // Initialize the bean instance.
@@ -149,11 +149,11 @@ public abstract class AbstractBeanFactory extends DefaultSingletonBeanRegistry i
                 Class<?> type = field.getType();
                 if(field.isAnnotationPresent(BWFAutowired.class)){
                     //获取依赖注入需要的bean对象
-                    StartupInfoLogger.addBWFComponentBeanMessage("--->--->--->--->开始属性填充beanName："+type.getName()+" -->引用地址：" + instance);
+                    StartupInfoLogger.addLoadBeanMessage("--->--->--->--->开始属性填充beanName："+type.getName()+" -->引用地址：" + instance);
                     Object bean = getBean(type.getName());
                     field.setAccessible(true);
                     field.set(instance, bean);
-                    StartupInfoLogger.addBWFComponentBeanMessage("--->--->--->--->--->getBean("+type.getName()+")属性填充fieldName："+fieldName+" -->instance引用：【"+instance+"】" + "填充bean引用：【"+bean+"】");
+                    StartupInfoLogger.addLoadBeanMessage("--->--->--->--->--->getBean("+type.getName()+")属性填充fieldName："+fieldName+" -->instance引用：【"+instance+"】" + "填充bean引用：【"+bean+"】");
                 }
             }
         } catch (IllegalAccessException e) {
@@ -268,7 +268,7 @@ public abstract class AbstractBeanFactory extends DefaultSingletonBeanRegistry i
     public void preInstantiateSingletons(String className, Class<?> clazz) throws BeansException {
         RootBeanDefinition bd = getLocalRootBeanDefinition(className);
         bd.setBeanClass(clazz);
-        StartupInfoLogger.addBWFComponentBeanMessage("--->RootBeanDefinition:" + bd);
+        StartupInfoLogger.addLoadBeanMessage("--->RootBeanDefinition:" + bd);
         //条件判断，单例
         if (bd.isSingleton()) {
             Object bean = getBean(className);

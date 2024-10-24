@@ -4,6 +4,9 @@ package com.bwf.core.beans.resource;
 import cn.hutool.core.lang.Assert;
 import com.bwf.core.beans.BeanDefinition;
 
+import java.io.IOException;
+import java.io.InputStream;
+
 public class BeanDefinitionResource extends AbstractResource{
     private final BeanDefinition beanDefinition;
 

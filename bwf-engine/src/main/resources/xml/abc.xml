@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE bwf-node [
+        <!ELEMENT bwf-node (node+)>
+        <!ELEMENT node (bean_id, bean_name, bean_class, proxy_class)>
+        <!ELEMENT bean_id (#PCDATA)>
+        <!ELEMENT bean_name (#PCDATA)>
+        <!ELEMENT bean_class (#PCDATA)>
+        <!ELEMENT proxy (#PCDATA)>
+        <!ELEMENT proxy_class (#PCDATA)>
+        ]>
+
+<bwf-node>
+    <node bean_id="UserBean" bean_name="com.example.User"></node>
+
+</bwf-node>

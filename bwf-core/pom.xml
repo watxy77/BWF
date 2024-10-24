@@ -67,7 +67,11 @@
             <artifactId>kotlin-scripting-jsr223</artifactId>
             <version>${kotlin.version}</version>
         </dependency>
-
+        <dependency>
+            <groupId>commons-io</groupId>
+            <artifactId>commons-io</artifactId>
+            <version>${commons-io.version}</version>
+        </dependency>
 
         <dependency>
             <groupId>cn.hutool</groupId>

@@ -1,9 +1,9 @@
-package com.bwf.core.node;
+package com.bwf.core.beans;
 /**
  * @Author bjweijiannan
  * @description
  */
-public enum NodeEnum {
+public enum BeanNodeEnum {
     NODE_AI(1),
     NODE_AVIATOR(2),
     NODE_GROOVY(3),
@@ -13,7 +13,7 @@ public enum NodeEnum {
     NODE_PYTHON(7),
     NODE_QLEXPRESS(8);
     private int code;
-    private NodeEnum(int code){
+    private BeanNodeEnum(int code){
         this.code = code;
     }
 
