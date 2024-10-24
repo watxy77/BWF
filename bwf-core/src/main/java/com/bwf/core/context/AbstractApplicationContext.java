@@ -16,6 +16,7 @@ import com.bwf.core.exception.BeansException;
 import com.bwf.core.io.FileUtil;
 
 import java.io.File;
+import java.lang.annotation.Annotation;
 import java.net.URL;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -126,34 +127,60 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
         /**处理外部Bean生成*/
         /**1、处理XML Bean*/
         int xmlBeanCount = 0;
+        boolean xmlBeanflag = false;
         if(mainApplicationClass.isAnnotationPresent(BWFConfigBeanXML.class)){
+            xmlBeanflag = true;
             BWFConfigBeanXML xmlAnnotation = mainApplicationClass.getDeclaredAnnotation(BWFConfigBeanXML.class);
             String[] xmlBeanPathArr = xmlAnnotation.value();
             xmlBeanCount = new XMLBeanDefinitionReaderResolver(bwfNodeBeanContext).loadBeanDefinitions(new EncodedResource(xmlBeanPathArr, BeanReaderEnum.BEAN_XML.getCode(), mainApplicationClass));
         }
-        StartupInfoLogger.addLoadBeanMessage("---------处理XML  Bean共加载："+ xmlBeanCount +"个Bean---------");
+        if(!xmlBeanflag){
+            StartupInfoLogger.addLoadBeanMessage("---------【未开启】XML注解方式加载Bean对象---------");
+        }else{
+            StartupInfoLogger.addLoadBeanMessage("---------【开启】处理XML  Bean共加载："+ xmlBeanCount +"个Bean---------");
+        }
+
 
         /**2、处理JSON Bean*/
         int jsonBeanCount = 0;
+        boolean jsonBeanflag = false;
         if(mainApplicationClass.isAnnotationPresent(BWFConfigBeanJSON.class)){
+            jsonBeanflag = true;
             BWFConfigBeanJSON jsonAnnotation = mainApplicationClass.getDeclaredAnnotation(BWFConfigBeanJSON.class);
             String[] jsonBeanPathArr = jsonAnnotation.value();
             jsonBeanCount = new JSONBeanDefinitionReaderResolver(bwfNodeBeanContext).loadBeanDefinitions(new EncodedResource(jsonBeanPathArr, BeanReaderEnum.BEAN_JSON.getCode(), mainApplicationClass));
         }
-        StartupInfoLogger.addLoadBeanMessage("---------处理JSON Bean共加载："+ jsonBeanCount +"个Bean---------");
+        if(!jsonBeanflag){
+            StartupInfoLogger.addLoadBeanMessage("---------【未开启】JSON注解方式加载Bean对象---------");
+        }else{
+            StartupInfoLogger.addLoadBeanMessage("---------【开启】处理JSON Bean共加载："+ jsonBeanCount +"个Bean---------");
+        }
+
 
         int yamlBeanCount = 0;
+        boolean yamlBeanflag = false;
         /**3、处理YAML Bean*/
         if(mainApplicationClass.isAnnotationPresent(BWFConfigBeanYAML.class)){
+            yamlBeanflag = true;
             BWFConfigBeanYAML yamlAnnotation = mainApplicationClass.getDeclaredAnnotation(BWFConfigBeanYAML.class);
             String[] yamlBeanPathArr = yamlAnnotation.value();
             yamlBeanCount = new YAMLBeanDefinitionReaderResolver(bwfNodeBeanContext).loadBeanDefinitions(new EncodedResource(yamlBeanPathArr, BeanReaderEnum.BEAN_YAML.getCode(), mainApplicationClass));
         }
-        StartupInfoLogger.addLoadBeanMessage("---------处理YAML Bean共加载："+ yamlBeanCount +"个Bean---------");
+        if(!yamlBeanflag){
+            StartupInfoLogger.addLoadBeanMessage("---------【未开启】YAML注解方式加载Bean对象---------");
+        }else{
+            StartupInfoLogger.addLoadBeanMessage("---------【开启】处理YAML Bean共加载："+ yamlBeanCount +"个Bean---------");
+        }
+
         /**4、处理Annotation Bean*/
         int annotationBeanCount = 0;
         annotationBeanCount = new AnnotationBeanDefinitionReaderResolver(bwfNodeBeanContext).loadBeanDefinitions(new EncodedResource(null, BeanReaderEnum.BEAN_ANNOTATION.getCode(), mainApplicationClass));
-        StartupInfoLogger.addLoadBeanMessage("---------处理Annotation Bean共加载："+ annotationBeanCount +"个Bean---------");
+        if(annotationBeanCount == 0){
+            StartupInfoLogger.addLoadBeanMessage("---------【未开启】Annotation注解方式加载Bean对象---------");
+        }else{
+            StartupInfoLogger.addLoadBeanMessage("---------【开启】处理Annotation Bean共加载："+ annotationBeanCount +"个Bean---------");
+        }
+
 
         /**处理框架内部Bean生成*/
         /**1、处理Annotation Bean*/
@@ -167,6 +194,7 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
     public void registerShutdownHook() {
 
     }
+
 
     @Override
     public void close() {

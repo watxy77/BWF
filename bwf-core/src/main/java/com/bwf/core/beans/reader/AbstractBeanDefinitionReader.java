@@ -51,7 +51,7 @@ public abstract class AbstractBeanDefinitionReader implements BeanDefinitionRead
 
     public int loadBeanDefinitions(BeanDefinitionReaderEntity bdre, @Nullable Set<Resource> actualResources) throws BeanDefinitionStoreException {
         int rCount = 1;
-        
+        // 处理beanNode加载
         return rCount;
     }
 }

@@ -1,9 +1,6 @@
 package com.bwf.engine;
 
-import com.bwf.common.annotation.bootstrap.annotation.BWFApplication;
-import com.bwf.common.annotation.bootstrap.annotation.BWFConfigBeanJSON;
-import com.bwf.common.annotation.bootstrap.annotation.BWFConfigBeanXML;
-import com.bwf.common.annotation.bootstrap.annotation.BWFGlobalConfigScan;
+import com.bwf.common.annotation.bootstrap.annotation.*;
 import com.bwf.core.context.BWFApplicationContext;
 import com.bwf.core.context.ConfigurableApplicationContext;
 import com.bwf.engine.BWFComponent.A;
@@ -14,7 +11,8 @@ import com.bwf.engine.BWFNode.node_C;
 @BWFApplication
 @BWFGlobalConfigScan({"engine.yml"})
 @BWFConfigBeanXML("")
-@BWFConfigBeanJSON("json/abc.json")
+@BWFConfigBeanYAML("")
+//@BWFConfigBeanJSON("json/abc.json")
 public class BWFEngineApplication {
     public static void main(String[] args) {
         ConfigurableApplicationContext run = BWFApplicationContext.run(BWFEngineApplication.class, args);
