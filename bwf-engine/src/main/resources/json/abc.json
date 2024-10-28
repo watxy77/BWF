@@ -3,14 +3,14 @@
     {
       "beanId": "a1",
       "beanName": "aaa",
-      "beanType": 1,
+      "beanType": 3,
       "beanClass": "",
       "proxyClass": "",
       "isSingleton": true,
       "propertyValue": [
-        {"name": "a1", "value": "aaa", "weight": 1},
-        {"name": "a2", "value": "bbb", "weight": 2},
-        {"name": "a3", "value": "ccc", "weight": 3}
+        {"name": "a1", "value": "aaa", "weight": 3},
+        {"name": "a2", "value": "bbb", "weight": 23},
+        {"name": "a3", "value": "ccc", "weight": 2}
       ]
     },
     {

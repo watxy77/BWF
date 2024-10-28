@@ -1,7 +1,9 @@
 package com.bwf.core.beans.reader;
 
 import com.bwf.core.beans.PropertyValue;
+import com.bwf.core.beans.chain.NodeChainHandler;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class BeanDefinitionDocument {
@@ -15,7 +17,14 @@ public class BeanDefinitionDocument {
     private String proxyClass;
     private boolean isSingleton;
     private List<PropertyValue> propertyValue;
+    private NodeChainHandler firstChainHandler;
+    private List<NodeChainHandler> nodeChainHandlerList;
 
+
+
+    public BeanDefinitionDocument() {
+        nodeChainHandlerList = new ArrayList<>();
+    }
 
     public String getBeanId() {
         return beanId;
@@ -95,5 +104,21 @@ public class BeanDefinitionDocument {
 
     public void setPropertyValue(List<PropertyValue> propertyValue) {
         this.propertyValue = propertyValue;
+    }
+
+    public NodeChainHandler getFirstChainHandler() {
+        return firstChainHandler;
+    }
+
+    public void setFirstChainHandler(NodeChainHandler firstChainHandler) {
+        this.firstChainHandler = firstChainHandler;
+    }
+
+    public List<NodeChainHandler> getNodeChainHandlerList() {
+        return nodeChainHandlerList;
+    }
+
+    public void addNodeChainHandlerList(NodeChainHandler nodeChainHandler) {
+        this.nodeChainHandlerList.add(nodeChainHandler);
     }
 }

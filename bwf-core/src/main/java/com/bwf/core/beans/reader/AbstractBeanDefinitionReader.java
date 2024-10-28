@@ -3,10 +3,15 @@ package com.bwf.core.beans.reader;
 import com.bwf.common.annotation.bootstrap.annotation.Nullable;
 import com.bwf.core.beans.AbstractBeanFactory;
 import com.bwf.core.beans.BWFNodeBeanFactory;
+import com.bwf.core.beans.BeanNodeEnum;
+import com.bwf.core.beans.PropertyValue;
+import com.bwf.core.beans.chain.GroovyChainHandler;
+import com.bwf.core.beans.chain.NodeChainHandler;
 import com.bwf.core.beans.factory.ConfigurableListableBeanFactory;
 import com.bwf.core.exception.BeanDefinitionStoreException;
 import com.bwf.core.io.Resource;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
@@ -50,6 +55,8 @@ public abstract class AbstractBeanDefinitionReader implements BeanDefinitionRead
         int rCount = 1;
         // 判断bean对象名称是否被占用
         if(!getBeanFactory().isBeanNameInUse(bdd.getBeanName())){
+            //构建node 执行调用链
+            buildBeanChainHandler(bdd);
             // 继续创建Bean对象
             getBeanFactory().registerSingleton(bdd);
         }else{
@@ -61,5 +68,27 @@ public abstract class AbstractBeanDefinitionReader implements BeanDefinitionRead
 //        documentReader.registerBeanDefinitions(doc, createReaderContext(resource));
 //        return getRegistry().getBeanDefinitionCount() - countBefore;
         return rCount;
+    }
+
+    private void buildBeanChainHandler(BeanDefinitionDocument bdd){
+        if(bdd.getPropertyValue().size() > 0){
+            //执行按权重排序
+            Collections.sort(bdd.getPropertyValue());
+            NodeChainHandler firstHandler = null;
+            NodeChainHandler nextHandler = null;
+            for (PropertyValue propertyValue : bdd.getPropertyValue()) {
+                if(BeanNodeEnum.NODE_GROOVY.getCode() == bdd.getBeanType()){
+                    NodeChainHandler nodeChainHandler = new GroovyChainHandler(propertyValue);
+                    if(nextHandler != null){
+                        nextHandler.setNext(nodeChainHandler);
+                    }else{
+                        firstHandler = nodeChainHandler;
+                    }
+                    nextHandler = nodeChainHandler;
+                    bdd.addNodeChainHandlerList(nodeChainHandler);
+                }
+            }
+            bdd.setFirstChainHandler(firstHandler);
+        }
     }
 }
