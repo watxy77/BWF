@@ -5,7 +5,6 @@ import com.bwf.common.annotation.bootstrap.annotation.Nullable;
 import com.bwf.core.beans.BeanDefinition;
 import com.bwf.core.beans.ObjectFactory;
 import com.bwf.core.beans.RootBeanDefinition;
-import com.bwf.core.beans.factory.ConfigurableBeanFactory;
 import com.bwf.core.beans.factory.ConfigurableListableBeanFactory;
 import com.bwf.core.beans.reader.BeanDefinitionDocument;
 import com.bwf.core.exception.BeanCreationException;
@@ -15,7 +14,7 @@ import com.bwf.core.exception.NoSuchBeanDefinitionException;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
-public class DefaultSingletonBeanRegistry implements ConfigurableListableBeanFactory {
+public class DefaultSingletonBeanRegistry_1 implements ConfigurableListableBeanFactory {
     /** 一级缓存 */
     private final Map<String, Object> singletonObjects = new ConcurrentHashMap<>(256);
     /** 二级缓存 */
@@ -47,11 +46,6 @@ public class DefaultSingletonBeanRegistry implements ConfigurableListableBeanFac
     @Override
     public void registerSingleton(BeanDefinitionDocument bdd) {
 
-        synchronized (bdd) {
-//            String oldObject = bdd.getBeanClass();
-//            addSingleton(bdd.getBeanName(), singletonObject);
-        }
-        System.out.println("registerSingleton:"+bdd);
     }
 
     protected void addSingleton(String beanName, Object singletonObject) {
@@ -209,6 +203,7 @@ public class DefaultSingletonBeanRegistry implements ConfigurableListableBeanFac
         return false;
     }
 
+
     @Override
     public boolean containsBeanDefinition(String beanName) {
         return false;
@@ -226,10 +221,6 @@ public class DefaultSingletonBeanRegistry implements ConfigurableListableBeanFac
 
     @Override
     public boolean isBeanNameInUse(String beanName) {
-        Object o = this.singletonObjects.get(beanName);
-        if(o != null){
-            return true;
-        }
         return false;
     }
 }

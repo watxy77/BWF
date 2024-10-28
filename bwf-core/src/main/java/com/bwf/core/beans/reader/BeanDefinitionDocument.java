@@ -1,15 +1,21 @@
 package com.bwf.core.beans.reader;
 
+import com.bwf.core.beans.PropertyValue;
+
+import java.util.List;
+
 public class BeanDefinitionDocument {
     private String beanId;
     private String beanName;
     private int beanType;
-    private String beanClass;
+    private int source;
     private String classPath;
     private String tClassPath;
     private String className;
     private String proxyClass;
     private boolean isSingleton;
+    private List<PropertyValue> propertyValue;
+
 
     public String getBeanId() {
         return beanId;
@@ -35,12 +41,12 @@ public class BeanDefinitionDocument {
         this.beanType = beanType;
     }
 
-    public String getBeanClass() {
-        return beanClass;
+    public int getSource() {
+        return source;
     }
 
-    public void setBeanClass(String beanClass) {
-        this.beanClass = beanClass;
+    public void setSource(int source) {
+        this.source = source;
     }
 
     public String getClassPath() {
@@ -81,5 +87,13 @@ public class BeanDefinitionDocument {
 
     public void setSingleton(boolean singleton) {
         isSingleton = singleton;
+    }
+
+    public List<PropertyValue> getPropertyValue() {
+        return propertyValue;
+    }
+
+    public void setPropertyValue(List<PropertyValue> propertyValue) {
+        this.propertyValue = propertyValue;
     }
 }

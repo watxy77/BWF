@@ -26,7 +26,6 @@ public class RootBeanDefinition implements BeanDefinition, Cloneable{
             setScope(original.getScope());
             setSynthetic(original.isSynthetic());
         }
-
     }
     public boolean isSingleton() {
         return SCOPE_SINGLETON.equals(this.scope);
@@ -34,7 +33,6 @@ public class RootBeanDefinition implements BeanDefinition, Cloneable{
     public boolean isSynthetic() {
         return this.synthetic;
     }
-
 
     @Nullable
     public Class getBeanClass() {

@@ -1,10 +1,12 @@
 package com.bwf.core.beans.reader.resolver;
 
 import com.alibaba.fastjson.JSONObject;
+import com.bwf.core.beans.factory.ConfigurableListableBeanFactory;
 import com.bwf.core.beans.reader.AbstractBeanDefinitionReader;
 import com.bwf.core.beans.reader.BeanDefinitionDocument;
+import com.bwf.core.beans.reader.BeanReaderEnum;
 import com.bwf.core.beans.resource.EncodedResource;
-import com.bwf.core.context.BWFNodeBeanContext;
+import com.bwf.core.beans.BWFNodeBeanFactory;
 import com.bwf.core.exception.BeanDefinitionStoreException;
 import org.apache.commons.io.FileUtils;
 
@@ -14,8 +16,8 @@ import java.util.List;
 
 public class JSONBeanDefinitionReaderResolver extends AbstractBeanDefinitionReader {
 
-    public JSONBeanDefinitionReaderResolver(BWFNodeBeanContext bwfNodeBeanContext) {
-        super(bwfNodeBeanContext);
+    public JSONBeanDefinitionReaderResolver(ConfigurableListableBeanFactory beanFactory) {
+        super(beanFactory);
     }
 
     @Override
@@ -30,7 +32,7 @@ public class JSONBeanDefinitionReaderResolver extends AbstractBeanDefinitionRead
                     JSONObject beanJson = JSONObject.parseObject(content);
                     String bwfNodeArr = beanJson.getString(this.bwf_node);
                     List<BeanDefinitionDocument> bdreList = JSONObject.parseArray(bwfNodeArr, BeanDefinitionDocument.class);
-                    rCount += this.loadBeanDefinitions(bdreList);
+                    rCount += this.loadBeanDefinitions(bdreList, BeanReaderEnum.BEAN_JSON.getCode());
                 } catch (IOException e) {
                     e.printStackTrace();
                 }

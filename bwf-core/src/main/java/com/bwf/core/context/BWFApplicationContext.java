@@ -1,8 +1,13 @@
 package com.bwf.core.context;
 
-import com.bwf.common.annotation.bootstrap.BWFInitializingBean;
 import com.bwf.common.annotation.bootstrap.annotation.*;
+import com.bwf.core.beans.BWFComponentBeanFactory;
+import com.bwf.core.beans.BWFNodeBeanFactory;
+import com.bwf.core.beans.factory.ConfigurableListableBeanFactory;
 import com.bwf.core.bootstrap.utils.StartupInfoLogger;
+import com.bwf.core.eventbus.BWFEventMessageBus;
+import com.bwf.core.eventbus.model.EventEnum;
+import com.bwf.core.eventbus.subscription.NodeHandleSub;
 import com.bwf.core.exception.BeansException;
 import com.bwf.core.io.ResourceLoader;
 
@@ -14,12 +19,16 @@ import java.time.Duration;
  */
 public class BWFApplicationContext extends AbstractApplicationContext{
     private boolean registerShutdownHook = true;
+    private static BWFEventMessageBus eventMessageBusInstance;
+    private BWFComponentBeanFactory bwfComponentBeanFactory;
+    private BWFNodeBeanFactory nodeBeanFactory;
 
     public BWFApplicationContext(Class<?>... primarySources) {
         this((ResourceLoader)null, primarySources);
     }
     public BWFApplicationContext(ResourceLoader resourceLoader, Class<?>... primarySources) {
         this.mainApplicationClass = this.deduceMainApplicationClass();
+
     }
 
     public static ConfigurableApplicationContext run(Class<?> primarySource, String... args) {
@@ -37,7 +46,10 @@ public class BWFApplicationContext extends AbstractApplicationContext{
                 if (this.registerShutdownHook) {
 //                    shutdownHook.registerApplicationContext(context);
                 }
-                refresh();
+                super.refresh();
+
+                /**打印启动日志*/
+                System.out.println(StartupInfoLogger.lodeBeanMessage());
             }else{
                 throw new NullPointerException("未发现BWFApplication注解类，无法初始化BWF框架。请在main启动函数类上添加！");
             }
@@ -56,18 +68,31 @@ public class BWFApplicationContext extends AbstractApplicationContext{
         return this;
     }
 
+
     @Override
-    public Object getComponentBean(String beanName) {
-        return this.getBWFComponentBeanContext().getBean(beanName);
+    public ConfigurableListableBeanFactory getBeanFactory() throws IllegalStateException {
+        return this.nodeBeanFactory;
     }
 
     @Override
-    public Object getNodeBean(String beanName) {
-        return this.getBWFNodeBeanContext().getBean(beanName);
+    protected void refreshBeanFactory() throws BeansException, IllegalStateException {
+        //创建BeanFactory对象
+//        this.bwfComponentBeanFactory = new BWFComponentBeanFactory();
+        this.nodeBeanFactory = new BWFNodeBeanFactory();
+
+        this.eventMessageBusInstance = BWFEventMessageBus.getInstance();
+        this.eventMessageBusInstance.setPubEvent(EventEnum.NODE_HANDLE_SUB.getCode(), new NodeHandleSub());
+        //注入系统ComponentBean eventMessageBus到BWFComponent集合中
+//        bwfComponentBeanFactory.registerSingleton("BWFEventMessageBus", this.eventMessageBusInstance);
+        //注入系统NodeBean eventMessageBus到BWFNode集合中
+        nodeBeanFactory.registerSingleton("BWFEventMessageBus", this.eventMessageBusInstance);
+
+
     }
 
     @Override
-    protected void onRefresh() throws BeansException {
-        super.onRefresh();
+    protected ConfigurableListableBeanFactory obtainBeanFactoryInitialization() {
+        refreshBeanFactory();
+        return getBeanFactory();
     }
 }

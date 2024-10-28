@@ -1,18 +1,15 @@
 package com.bwf.core.beans.reader.resolver;
 
-import com.alibaba.fastjson.JSONObject;
-import com.bwf.core.beans.BeanDefinition;
+import com.bwf.core.beans.factory.ConfigurableListableBeanFactory;
 import com.bwf.core.beans.reader.AbstractBeanDefinitionReader;
-import com.bwf.core.beans.resource.BeanDefinitionResource;
 import com.bwf.core.beans.resource.EncodedResource;
-import com.bwf.core.context.BWFNodeBeanContext;
+import com.bwf.core.beans.BWFNodeBeanFactory;
 import com.bwf.core.exception.BeanDefinitionStoreException;
-import com.bwf.core.io.Resource;
 
 public class XMLBeanDefinitionReaderResolver extends AbstractBeanDefinitionReader {
 
-    public XMLBeanDefinitionReaderResolver(BWFNodeBeanContext bwfNodeBeanContext) {
-        super(bwfNodeBeanContext);
+    public XMLBeanDefinitionReaderResolver(ConfigurableListableBeanFactory beanFactory) {
+        super(beanFactory);
     }
 
 

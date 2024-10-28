@@ -3,11 +3,13 @@ package com.bwf.core.beans.reader.resolver;
 import com.bwf.common.annotation.bootstrap.annotation.BWFNode;
 import com.bwf.common.annotation.bootstrap.annotation.BWFScope;
 import com.bwf.core.beans.BeanNodeEnum;
+import com.bwf.core.beans.factory.ConfigurableListableBeanFactory;
 import com.bwf.core.beans.reader.AbstractBeanDefinitionReader;
 import com.bwf.core.beans.reader.BeanDefinitionDocument;
+import com.bwf.core.beans.reader.BeanReaderEnum;
 import com.bwf.core.beans.resource.EncodedResource;
 import com.bwf.core.beans.utils.BeanUtil;
-import com.bwf.core.context.BWFNodeBeanContext;
+import com.bwf.core.beans.BWFNodeBeanFactory;
 import com.bwf.core.exception.BeanDefinitionStoreException;
 import com.bwf.core.io.FileUtil;
 
@@ -19,8 +21,8 @@ public class AnnotationBeanDefinitionReaderResolver extends AbstractBeanDefiniti
     private final static String _CLASS = ".class";
     private final static String _COM = "com";
 
-    public AnnotationBeanDefinitionReaderResolver(BWFNodeBeanContext bwfNodeBeanContext) {
-        super(bwfNodeBeanContext);
+    public AnnotationBeanDefinitionReaderResolver(ConfigurableListableBeanFactory beanFactory) {
+        super(beanFactory);
     }
 
     @Override
@@ -40,12 +42,10 @@ public class AnnotationBeanDefinitionReaderResolver extends AbstractBeanDefiniti
                     Class<?> clazz = classLoader.loadClass(t_classPath);
 
                     if(clazz.isAnnotationPresent(BWFNode.class)){
-
                         BeanDefinitionDocument bdd = new BeanDefinitionDocument();
                         bdd.setBeanId(className);
                         bdd.setBeanName(className);
                         bdd.setBeanType(BeanNodeEnum.NODE_JAVA.getCode());
-                        bdd.setBeanClass(className);
                         bdd.setClassName(className);
                         bdd.setClassPath(classPath);
                         bdd.settClassPath(t_classPath);
@@ -61,10 +61,9 @@ public class AnnotationBeanDefinitionReaderResolver extends AbstractBeanDefiniti
                 }catch (Exception e){
                     e.printStackTrace();
                 }
-
             }
         }
-        rCount += this.loadBeanDefinitions(bddList);
+        rCount += this.loadBeanDefinitions(bddList, BeanReaderEnum.BEAN_ANNOTATION.getCode());
         return rCount;
     }
 }

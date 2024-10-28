@@ -1,27 +1,24 @@
 package com.bwf.core.context;
 
 import com.bwf.common.annotation.bootstrap.annotation.*;
-import com.bwf.core.beans.factory.ConfigurableBeanFactory;
+import com.bwf.core.beans.BWFComponentBeanFactory;
+import com.bwf.core.beans.BWFNodeBeanFactory;
+import com.bwf.core.beans.factory.ConfigurableListableBeanFactory;
 import com.bwf.core.beans.reader.BeanReaderEnum;
 import com.bwf.core.beans.reader.resolver.AnnotationBeanDefinitionReaderResolver;
 import com.bwf.core.beans.reader.resolver.JSONBeanDefinitionReaderResolver;
 import com.bwf.core.beans.reader.resolver.XMLBeanDefinitionReaderResolver;
 import com.bwf.core.beans.reader.resolver.YAMLBeanDefinitionReaderResolver;
 import com.bwf.core.beans.resource.EncodedResource;
+import com.bwf.core.bootstrap.utils.ClassUtils;
 import com.bwf.core.bootstrap.utils.StartupInfoLogger;
 import com.bwf.core.eventbus.BWFEventMessageBus;
-import com.bwf.core.eventbus.model.EventEnum;
-import com.bwf.core.eventbus.subscription.NodeHandleSub;
 import com.bwf.core.exception.BeansException;
-import com.bwf.core.io.FileUtil;
-
-import java.io.File;
-import java.lang.annotation.Annotation;
-import java.net.URL;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public abstract class AbstractApplicationContext implements ConfigurableApplicationContext{
+    private String id = ClassUtils.identityToString(this);
     /**系统启动的开始时间*/
     protected long startupDate;
     /**上下文是否已关闭的标志*/
@@ -30,13 +27,12 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
     private final AtomicBoolean active = new AtomicBoolean();
     private final Map<String, Class<?>> bwfComponentClazzMap = new HashMap<>();
     private final Map<String, Class<?>> bwfNodeClazzMap = new HashMap<>();
+
+
     private final static String _CLASS = ".class";
     private final static String _COM = "com";
     protected static Class<?> mainApplicationClass;
     protected Set<Class<?>> primarySources;
-    private static BWFEventMessageBus eventMessageBusInstance;
-    private BWFComponentBeanContext bwfComponentBeanContext;
-    private BWFNodeBeanContext bwfNodeBeanContext;
 
     /**“刷新”和“销毁”的监视器*/
     private Object startupShutdownMonitor = new Object();
@@ -46,20 +42,15 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
     public AbstractApplicationContext() {
         this.startupShutdownMonitor = new Object();
     }
-
-    public BWFNodeBeanContext getBWFNodeBeanContext(){
-        return bwfNodeBeanContext;
-    }
-    public BWFComponentBeanContext getBWFComponentBeanContext(){
-        return bwfComponentBeanContext;
-    }
-    public static void pubEvent(String code, Object o){
-        eventMessageBusInstance.setPubEvent(code, o);
-    }
-    public static void subEvent(String code, Object o){
-        eventMessageBusInstance.setPubEvent(code, o);
+    @Override
+    public void setId(String id) {
+        this.id = id;
     }
 
+    @Override
+    public String getId() {
+        return this.id;
+    }
 
     @Override
     public boolean isRunning() {
@@ -69,16 +60,6 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
     @Override
     public boolean containsBean(String name) {
         return false;
-    }
-
-    @Override
-    public String getId() {
-        return null;
-    }
-
-    @Override
-    public String getApplicationName() {
-        return null;
     }
 
     @Override
@@ -97,21 +78,6 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
     }
 
     @Override
-    public void setId(String id) {
-
-    }
-
-    @Override
-    public void setParent(ApplicationContext parent) {
-
-    }
-
-    @Override
-    public void setClassLoader(ClassLoader classLoader) {
-
-    }
-
-    @Override
     public void refresh() throws IllegalStateException {
         synchronized (this.startupShutdownMonitor) {
             /**
@@ -121,80 +87,21 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
              * 3、设置关闭状态为false
              * */
             prepareRefresh();
-            /**初始化BeanFactory*/
-            obtainBeanFactoryInitialization();
+            /**初始化项目中的Bean Factory*/
+            ConfigurableListableBeanFactory beanFactory = obtainBeanFactoryInitialization();
 
+            try{
+                postProcessBeanFactory(beanFactory);
+                invokeBeanFactoryPostProcessors(beanFactory);
+                //注册bean处理器，这里只是注册功能，真正调用的是getBean方法
+                registerBeanPostProcessors(beanFactory);
+                // 留给子类来初始化其他的bean
+                onRefresh();
+            }catch (Exception e){
 
-            this.onRefresh();
-            System.out.println(StartupInfoLogger.lodeBeanMessage());
+            }
+
         }
-    }
-
-    private ConfigurableBeanFactory obtainBeanFactoryInitialization() {
-        /**处理外部Bean生成*/
-        /**1、处理XML Bean*/
-        int xmlBeanCount = 0;
-        boolean xmlBeanflag = false;
-        if(mainApplicationClass.isAnnotationPresent(BWFConfigBeanXML.class)){
-            xmlBeanflag = true;
-            BWFConfigBeanXML xmlAnnotation = mainApplicationClass.getDeclaredAnnotation(BWFConfigBeanXML.class);
-            String[] xmlBeanPathArr = xmlAnnotation.value();
-            xmlBeanCount = new XMLBeanDefinitionReaderResolver(bwfNodeBeanContext).loadBeanDefinitions(new EncodedResource(xmlBeanPathArr, BeanReaderEnum.BEAN_XML.getCode(), mainApplicationClass));
-        }
-        if(!xmlBeanflag){
-            StartupInfoLogger.addLoadBeanMessage("---------【未开启】XML注解方式加载Bean对象---------");
-        }else{
-            StartupInfoLogger.addLoadBeanMessage("---------【开启】处理XML  Bean共加载："+ xmlBeanCount +"个Bean---------");
-        }
-
-
-        /**2、处理JSON Bean*/
-        int jsonBeanCount = 0;
-        boolean jsonBeanflag = false;
-        if(mainApplicationClass.isAnnotationPresent(BWFConfigBeanJSON.class)){
-            jsonBeanflag = true;
-            BWFConfigBeanJSON jsonAnnotation = mainApplicationClass.getDeclaredAnnotation(BWFConfigBeanJSON.class);
-            String[] jsonBeanPathArr = jsonAnnotation.value();
-            jsonBeanCount = new JSONBeanDefinitionReaderResolver(bwfNodeBeanContext).loadBeanDefinitions(new EncodedResource(jsonBeanPathArr, BeanReaderEnum.BEAN_JSON.getCode(), mainApplicationClass));
-        }
-        if(!jsonBeanflag){
-            StartupInfoLogger.addLoadBeanMessage("---------【未开启】JSON注解方式加载Bean对象---------");
-        }else{
-            StartupInfoLogger.addLoadBeanMessage("---------【开启】处理JSON Bean共加载："+ jsonBeanCount +"个Bean---------");
-        }
-
-
-        int yamlBeanCount = 0;
-        boolean yamlBeanflag = false;
-        /**3、处理YAML Bean*/
-        if(mainApplicationClass.isAnnotationPresent(BWFConfigBeanYAML.class)){
-            yamlBeanflag = true;
-            BWFConfigBeanYAML yamlAnnotation = mainApplicationClass.getDeclaredAnnotation(BWFConfigBeanYAML.class);
-            String[] yamlBeanPathArr = yamlAnnotation.value();
-            yamlBeanCount = new YAMLBeanDefinitionReaderResolver(bwfNodeBeanContext).loadBeanDefinitions(new EncodedResource(yamlBeanPathArr, BeanReaderEnum.BEAN_YAML.getCode(), mainApplicationClass));
-        }
-        if(!yamlBeanflag){
-            StartupInfoLogger.addLoadBeanMessage("---------【未开启】YAML注解方式加载Bean对象---------");
-        }else{
-            StartupInfoLogger.addLoadBeanMessage("---------【开启】处理YAML Bean共加载："+ yamlBeanCount +"个Bean---------");
-        }
-
-        /**4、处理Annotation Bean*/
-        int annotationBeanCount = 0;
-        annotationBeanCount = new AnnotationBeanDefinitionReaderResolver(bwfNodeBeanContext).loadBeanDefinitions(new EncodedResource(null, BeanReaderEnum.BEAN_ANNOTATION.getCode(), mainApplicationClass));
-        if(annotationBeanCount == 0){
-            StartupInfoLogger.addLoadBeanMessage("---------【未开启】Annotation注解方式加载Bean对象---------");
-        }else{
-            StartupInfoLogger.addLoadBeanMessage("---------【开启】处理Annotation Bean共加载："+ annotationBeanCount +"个Bean---------");
-        }
-
-
-        /**处理框架内部Bean生成*/
-        /**1、处理Annotation Bean*/
-
-        //实例化BWFComponent单实例（非懒加载的）bean的声明周期（进行bean对象的创建工作）
-//        finishBWFComponentBeanFactoryInitialization();
-        return null;
     }
 
     @Override
@@ -226,11 +133,6 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
     }
 
     @Override
-    public boolean isActive() {
-        return false;
-    }
-
-    @Override
     public void start() {
 
     }
@@ -242,8 +144,34 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
 
     @Override
     public Object getBean(String name) throws BeansException {
-        return null;
+        return getBeanFactory().getBean(name);
     }
+
+    @Override
+    public <T> T getBean(Class<T> requiredType) throws BeansException {
+        return getBeanFactory().getBean(requiredType);
+    }
+
+    @Override
+    public boolean containsBeanDefinition(String beanName) {
+        return getBeanFactory().containsBeanDefinition(beanName);
+    }
+
+    @Override
+    public int getBeanDefinitionCount() {
+        return getBeanFactory().getBeanDefinitionCount();
+    }
+
+    @Override
+    public String[] getBeanDefinitionNames() {
+        return getBeanFactory().getBeanDefinitionNames();
+    }
+
+    @Override
+    public abstract ConfigurableListableBeanFactory getBeanFactory() throws IllegalStateException;
+
+    protected abstract void refreshBeanFactory() throws BeansException, IllegalStateException;
+    protected abstract ConfigurableListableBeanFactory obtainBeanFactoryInitialization();
 
     protected void finishBWFComponentBeanFactoryInitialization() {
         try{
@@ -254,7 +182,7 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
                 Class<?> clazz = entry.getValue();
                 StartupInfoLogger.addLoadBeanMessage("className：" + className);
                 //解析注解-BWFComponent
-                bwfComponentBeanContext.preInstantiateSingletons(className, clazz);
+//                bwfComponentBeanContext.preInstantiateSingletons(className, clazz);
             }
         }catch (Exception e){
             e.printStackTrace();
@@ -270,7 +198,7 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
                 Class<?> clazz = entry.getValue();
                 StartupInfoLogger.addLoadBeanMessage("className：" + className);
                 //解析注解-BWFNode
-                bwfNodeBeanContext.preInstantiateSingletons(className, clazz);
+//                bwfNodeBeanContext.preInstantiateSingletons(className, clazz);
 
             }
         }catch (Exception e){
@@ -283,40 +211,30 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
         this.closed.set(false);
         this.active.set(true);
         this.primarySources = new LinkedHashSet(Arrays.asList(primarySources));
-        this.eventMessageBusInstance = BWFEventMessageBus.getInstance();
-        this.eventMessageBusInstance.setPubEvent(EventEnum.NODE_HANDLE_SUB.getCode(), new NodeHandleSub());
-        this.bwfComponentBeanContext = new BWFComponentBeanContext();
-        this.bwfNodeBeanContext = new BWFNodeBeanContext();
-        //注入系统ComponentBean eventMessageBus到BWFComponent集合中
-        bwfComponentBeanContext.registerSingleton("BWFEventMessageBus", this.eventMessageBusInstance);
 
-
-        //扫描整个工程类
-        ClassLoader mainClassLoader = mainApplicationClass.getClassLoader();
-        //获取扫描根目录,处理注解类
-        URL resource = mainClassLoader.getResource("");
-        File file = new File(resource.getFile());
-        List<String> flieList = new ArrayList<>();
-        FileUtil.traverseFiles(file, flieList);
-        for (String f : flieList) {
-            if (f.endsWith(_CLASS)) {
-                String className = f.substring(f.indexOf(_COM), f.indexOf(_CLASS));
-                try{
-                    className = className.replace(File.separator, ".");
-                    Class<?> clazz = mainClassLoader.loadClass(className);
-                    if(clazz.isAnnotationPresent(BWFComponent.class)){
-                        bwfComponentClazzMap.put(className, clazz);
-                    }else if(clazz.isAnnotationPresent(BWFNode.class)){
-                        bwfNodeClazzMap.put(className, clazz);
-                    }
-                }catch (Exception e){
-                    e.printStackTrace();
-                }
-
-            }
-        }
-
-
+//        //扫描整个工程类
+//        ClassLoader mainClassLoader = mainApplicationClass.getClassLoader();
+//        //获取扫描根目录,处理注解类
+//        URL resource = mainClassLoader.getResource("");
+//        File file = new File(resource.getFile());
+//        List<String> flieList = new ArrayList<>();
+//        FileUtil.traverseFiles(file, flieList);
+//        for (String f : flieList) {
+//            if (f.endsWith(_CLASS)) {
+//                String className = f.substring(f.indexOf(_COM), f.indexOf(_CLASS));
+//                try{
+//                    className = className.replace(File.separator, ".");
+//                    Class<?> clazz = mainClassLoader.loadClass(className);
+//                    if(clazz.isAnnotationPresent(BWFComponent.class)){
+//                        bwfComponentClazzMap.put(className, clazz);
+//                    }else if(clazz.isAnnotationPresent(BWFNode.class)){
+//                        bwfNodeClazzMap.put(className, clazz);
+//                    }
+//                }catch (Exception e){
+//                    e.printStackTrace();
+//                }
+//            }
+//        }
     }
 
     protected Class<?> deduceMainApplicationClass() {
@@ -338,5 +256,76 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
 
     protected void onRefresh() throws BeansException {
     }
+
+    protected void postProcessBeanFactory(ConfigurableListableBeanFactory beanFactory) {
+    }
+
+    protected void invokeBeanFactoryPostProcessors(ConfigurableListableBeanFactory beanFactory) {
+
+    }
+
+    protected void registerBeanPostProcessors(ConfigurableListableBeanFactory beanFactory) {
+        /**处理外部Bean生成*/
+        /**1、处理XML Bean*/
+        int xmlBeanCount = 0;
+        boolean xmlBeanflag = false;
+        if(mainApplicationClass.isAnnotationPresent(BWFConfigBeanXML.class)){
+            xmlBeanflag = true;
+            BWFConfigBeanXML xmlAnnotation = mainApplicationClass.getDeclaredAnnotation(BWFConfigBeanXML.class);
+            String[] xmlBeanPathArr = xmlAnnotation.value();
+            xmlBeanCount = new XMLBeanDefinitionReaderResolver(beanFactory).loadBeanDefinitions(new EncodedResource(xmlBeanPathArr, BeanReaderEnum.BEAN_XML.getCode(), mainApplicationClass));
+        }
+        if(!xmlBeanflag){
+            StartupInfoLogger.addLoadBeanMessage("---------【未开启】XML注解方式加载Bean对象---------");
+        }else{
+            StartupInfoLogger.addLoadBeanMessage("---------【开启】处理XML  Bean共加载："+ xmlBeanCount +"个Bean---------");
+        }
+
+
+        /**2、处理JSON Bean*/
+        int jsonBeanCount = 0;
+        boolean jsonBeanflag = false;
+        if(mainApplicationClass.isAnnotationPresent(BWFConfigBeanJSON.class)){
+            jsonBeanflag = true;
+            BWFConfigBeanJSON jsonAnnotation = mainApplicationClass.getDeclaredAnnotation(BWFConfigBeanJSON.class);
+            String[] jsonBeanPathArr = jsonAnnotation.value();
+            jsonBeanCount = new JSONBeanDefinitionReaderResolver(beanFactory).loadBeanDefinitions(new EncodedResource(jsonBeanPathArr, BeanReaderEnum.BEAN_JSON.getCode(), mainApplicationClass));
+        }
+        if(!jsonBeanflag){
+            StartupInfoLogger.addLoadBeanMessage("---------【未开启】JSON注解方式加载Bean对象---------");
+        }else{
+            StartupInfoLogger.addLoadBeanMessage("---------【开启】处理JSON Bean共加载："+ jsonBeanCount +"个Bean---------");
+        }
+
+
+        int yamlBeanCount = 0;
+        boolean yamlBeanflag = false;
+        /**3、处理YAML Bean*/
+        if(mainApplicationClass.isAnnotationPresent(BWFConfigBeanYAML.class)){
+            yamlBeanflag = true;
+            BWFConfigBeanYAML yamlAnnotation = mainApplicationClass.getDeclaredAnnotation(BWFConfigBeanYAML.class);
+            String[] yamlBeanPathArr = yamlAnnotation.value();
+            yamlBeanCount = new YAMLBeanDefinitionReaderResolver(beanFactory).loadBeanDefinitions(new EncodedResource(yamlBeanPathArr, BeanReaderEnum.BEAN_YAML.getCode(), mainApplicationClass));
+        }
+        if(!yamlBeanflag){
+            StartupInfoLogger.addLoadBeanMessage("---------【未开启】YAML注解方式加载Bean对象---------");
+        }else{
+            StartupInfoLogger.addLoadBeanMessage("---------【开启】处理YAML Bean共加载："+ yamlBeanCount +"个Bean---------");
+        }
+
+        /**4、处理Annotation Bean*/
+        int annotationBeanCount = 0;
+        annotationBeanCount = new AnnotationBeanDefinitionReaderResolver(beanFactory).loadBeanDefinitions(new EncodedResource(null, BeanReaderEnum.BEAN_ANNOTATION.getCode(), mainApplicationClass));
+        if(annotationBeanCount == 0){
+            StartupInfoLogger.addLoadBeanMessage("---------【未开启】Annotation注解方式加载Bean对象---------");
+        }else{
+            StartupInfoLogger.addLoadBeanMessage("---------【开启】处理Annotation Bean共加载："+ annotationBeanCount +"个Bean---------");
+        }
+
+
+        /**处理框架内部Bean生成*/
+        /**1、处理Annotation Bean*/
+    }
+
 
 }

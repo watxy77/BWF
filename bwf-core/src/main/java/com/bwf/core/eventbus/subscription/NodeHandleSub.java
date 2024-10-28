@@ -4,7 +4,7 @@ package com.bwf.core.eventbus.subscription;
 import com.bwf.core.beans.factory.annotation.BWFAutowired;
 import com.bwf.core.eventbus.BWFEventMessageBus;
 import com.bwf.core.eventbus.IEventSub.IEventSubArgsAndObject;
-import com.bwf.core.node.BWFNodeBeanDefinition;
+import com.bwf.core.proxy.BWFNodeBeanDefinition;
 
 public class NodeHandleSub extends IEventSubArgsAndObject {
     @BWFAutowired

@@ -6,7 +6,12 @@
       "beanType": 1,
       "beanClass": "",
       "proxyClass": "",
-      "isSingleton": true
+      "isSingleton": true,
+      "propertyValue": [
+        {"name": "a1", "value": "aaa", "weight": 1},
+        {"name": "a2", "value": "bbb", "weight": 2},
+        {"name": "a3", "value": "ccc", "weight": 3}
+      ]
     },
     {
       "beanId": "b1",
@@ -14,7 +19,7 @@
       "beanType": 1,
       "beanClass": "",
       "proxyClass": "",
-      "isSingleton": true
+      "propertyValue": []
     }
   ]
 }
