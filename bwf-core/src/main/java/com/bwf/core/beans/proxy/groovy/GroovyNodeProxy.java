@@ -53,9 +53,9 @@ public class GroovyNodeProxy implements NodeProxy {
     @Override
     public void updatePV(PropertyValue newPropertyValue) {
         //版本比较
-        if(!newPropertyValue.getVersion().equals(executePropertyValue.getVersion())){
-
-        }
+//        if(!newPropertyValue.getVersion().equals(executePropertyValue.getVersion())){
+//
+//        }
         doCreateScript(newPropertyValue);
     }
 

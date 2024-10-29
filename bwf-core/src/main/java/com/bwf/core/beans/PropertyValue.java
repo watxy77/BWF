@@ -46,14 +46,6 @@ public class PropertyValue implements Comparable<PropertyValue>,Serializable{
         this.weight = weight;
     }
 
-    @Nullable
-    public String getVersion() {
-        return version;
-    }
-
-    public void setVersion(@Nullable String version) {
-        this.version = version;
-    }
 
     @Override
     public int compareTo(PropertyValue pv) {
