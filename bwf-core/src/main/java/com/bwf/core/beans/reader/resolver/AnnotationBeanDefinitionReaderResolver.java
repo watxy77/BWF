@@ -21,8 +21,8 @@ public class AnnotationBeanDefinitionReaderResolver extends AbstractBeanDefiniti
     private final static String _CLASS = ".class";
     private final static String _COM = "com";
 
-    public AnnotationBeanDefinitionReaderResolver(ConfigurableListableBeanFactory beanFactory) {
-        super(beanFactory);
+    public AnnotationBeanDefinitionReaderResolver(ConfigurableListableBeanFactory beanFactory, String[] beanPathArr) {
+        super(beanFactory, beanPathArr);
     }
 
     @Override
@@ -49,7 +49,6 @@ public class AnnotationBeanDefinitionReaderResolver extends AbstractBeanDefiniti
                         bdd.setClassName(className);
                         bdd.setClassPath(classPath);
                         bdd.settClassPath(t_classPath);
-
                         // 是否单例Bean
                         if(clazz.isAnnotationPresent(BWFScope.class)){
                             bdd.setSingleton(false);

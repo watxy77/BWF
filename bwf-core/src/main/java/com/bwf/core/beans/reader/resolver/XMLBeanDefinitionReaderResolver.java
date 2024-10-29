@@ -8,10 +8,9 @@ import com.bwf.core.exception.BeanDefinitionStoreException;
 
 public class XMLBeanDefinitionReaderResolver extends AbstractBeanDefinitionReader {
 
-    public XMLBeanDefinitionReaderResolver(ConfigurableListableBeanFactory beanFactory) {
-        super(beanFactory);
+    public XMLBeanDefinitionReaderResolver(ConfigurableListableBeanFactory beanFactory, String[] beanPathArr) {
+        super(beanFactory, beanPathArr);
     }
-
 
     @Override
     public int loadBeanDefinitions(EncodedResource resource) throws BeanDefinitionStoreException {

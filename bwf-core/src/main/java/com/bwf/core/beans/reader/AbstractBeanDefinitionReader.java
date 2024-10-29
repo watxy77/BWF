@@ -11,6 +11,7 @@ import com.bwf.core.beans.factory.ConfigurableListableBeanFactory;
 import com.bwf.core.exception.BeanDefinitionStoreException;
 import com.bwf.core.io.Resource;
 
+import java.lang.annotation.Annotation;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
@@ -19,21 +20,22 @@ public abstract class AbstractBeanDefinitionReader implements BeanDefinitionRead
     protected final static String charsetName = "UTF-8";
     protected final static String bwf_node = "bwf-node";
     protected ConfigurableListableBeanFactory beanFactory;
-    @Nullable
-    private ClassLoader beanClassLoader;
+    protected String[] beanPathArr;
 
     @Override
     public ConfigurableListableBeanFactory getBeanFactory() {
         return this.beanFactory;
     }
 
-    public AbstractBeanDefinitionReader(ConfigurableListableBeanFactory beanFactory) {
+    public AbstractBeanDefinitionReader(ConfigurableListableBeanFactory beanFactory, String[] beanPathArr) {
         this.beanFactory = beanFactory;
+        this.beanPathArr = beanPathArr;
     }
 
+
     @Override
-    public ClassLoader getBeanClassLoader() {
-        return this.beanClassLoader;
+    public String[] getBeanPathArr() {
+        return this.beanPathArr;
     }
 
     @Override
@@ -71,7 +73,7 @@ public abstract class AbstractBeanDefinitionReader implements BeanDefinitionRead
     }
 
     private void buildBeanChainHandler(BeanDefinitionDocument bdd){
-        if(bdd.getPropertyValue().size() > 0){
+        if(bdd.getPropertyValue() != null && bdd.getPropertyValue().size() > 0){
             //执行按权重排序
             Collections.sort(bdd.getPropertyValue());
             NodeChainHandler firstHandler = null;

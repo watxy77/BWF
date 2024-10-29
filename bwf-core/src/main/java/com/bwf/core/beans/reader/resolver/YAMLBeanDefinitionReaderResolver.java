@@ -8,8 +8,9 @@ import com.bwf.core.exception.BeanDefinitionStoreException;
 
 public class YAMLBeanDefinitionReaderResolver extends AbstractBeanDefinitionReader {
 
-    public YAMLBeanDefinitionReaderResolver(ConfigurableListableBeanFactory beanFactory) {
-        super(beanFactory);
+
+    public YAMLBeanDefinitionReaderResolver(ConfigurableListableBeanFactory beanFactory, String[] beanPathArr) {
+        super(beanFactory, beanPathArr);
     }
 
     @Override

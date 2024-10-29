@@ -4,6 +4,7 @@ import com.bwf.core.beans.factory.BeanDefinitionRegistry;
 import com.bwf.common.annotation.bootstrap.annotation.Nullable;
 import com.bwf.core.beans.factory.BeanFactory;
 import com.bwf.core.beans.reader.BeanDefinitionDocument;
+import com.bwf.core.beans.reader.BeanDefinitionReader;
 import com.bwf.core.beans.utils.BeanUtil;
 import com.bwf.core.bootstrap.utils.StartupInfoLogger;
 import com.bwf.core.exception.BeanDefinitionStoreException;
@@ -20,6 +21,7 @@ public abstract class AbstractBeanFactory extends DefaultSingletonBeanRegistry i
     private boolean allowCircularReferences = true;
     private final ConcurrentMap<String, BeanWrapper> factoryBeanInstanceCache = new ConcurrentHashMap<>();
     private final Map<String, RootBeanDefinition> mergedBeanDefinitions = new ConcurrentHashMap<>(256);
+
     @Override
     public Object getBean(String name) throws BeansException {
         return getBeanDefinition(name);

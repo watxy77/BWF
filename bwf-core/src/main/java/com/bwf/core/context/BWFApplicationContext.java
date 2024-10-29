@@ -4,12 +4,14 @@ import com.bwf.common.annotation.bootstrap.annotation.*;
 import com.bwf.core.beans.BWFComponentBeanFactory;
 import com.bwf.core.beans.BWFNodeBeanFactory;
 import com.bwf.core.beans.factory.ConfigurableListableBeanFactory;
+import com.bwf.core.bootstrap.utils.ClassUtils;
 import com.bwf.core.bootstrap.utils.StartupInfoLogger;
 import com.bwf.core.eventbus.BWFEventMessageBus;
 import com.bwf.core.eventbus.model.EventEnum;
 import com.bwf.core.eventbus.subscription.NodeHandleSub;
 import com.bwf.core.exception.BeansException;
 import com.bwf.core.io.ResourceLoader;
+import org.apache.tools.ant.util.ClasspathUtils;
 
 import java.time.Duration;
 
@@ -27,8 +29,7 @@ public class BWFApplicationContext extends AbstractApplicationContext{
         this((ResourceLoader)null, primarySources);
     }
     public BWFApplicationContext(ResourceLoader resourceLoader, Class<?>... primarySources) {
-        this.mainApplicationClass = this.deduceMainApplicationClass();
-
+        this.mainApplicationClass = ClassUtils.deduceMainApplicationClass();
     }
 
     public static ConfigurableApplicationContext run(Class<?> primarySource, String... args) {
@@ -56,8 +57,6 @@ public class BWFApplicationContext extends AbstractApplicationContext{
 
         }catch (Exception e){
             e.printStackTrace();
-            //destroyBeans();
-            //cancelRefresh(ex);
             throw e;
         }finally {
             //启动所需时间

@@ -1,6 +1,7 @@
 package com.bwf.core.beans.resource;
 
 import com.bwf.common.annotation.bootstrap.annotation.Nullable;
+import com.bwf.core.beans.reader.BeanReaderEnum;
 
 public class EncodedResource extends AbstractResource {
     @Nullable
@@ -8,11 +9,12 @@ public class EncodedResource extends AbstractResource {
     @Nullable
     private int type;
     private Class<?> targetClass;
+    private String annotationClassName;
 
 
-    public EncodedResource(@Nullable String[] path, @Nullable int type, Class<?> targetClass) {
+    public EncodedResource(@Nullable String[] path, @Nullable String annotationClassName, Class<?> targetClass) {
         this.path = path;
-        this.type = type;
+        this.annotationClassName = annotationClassName;
         this.targetClass = targetClass;
     }
 
@@ -39,5 +41,13 @@ public class EncodedResource extends AbstractResource {
 
     public void setTargetClass(Class<?> targetClass) {
         this.targetClass = targetClass;
+    }
+
+    public String getAnnotationClassName() {
+        return annotationClassName;
+    }
+
+    public void setAnnotationClassName(String annotationClassName) {
+        this.annotationClassName = annotationClassName;
     }
 }

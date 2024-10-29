@@ -16,8 +16,9 @@ import java.util.List;
 
 public class JSONBeanDefinitionReaderResolver extends AbstractBeanDefinitionReader {
 
-    public JSONBeanDefinitionReaderResolver(ConfigurableListableBeanFactory beanFactory) {
-        super(beanFactory);
+
+    public JSONBeanDefinitionReaderResolver(ConfigurableListableBeanFactory beanFactory, String[] beanPathArr) {
+        super(beanFactory, beanPathArr);
     }
 
     @Override

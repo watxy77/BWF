@@ -6,11 +6,12 @@ import com.bwf.core.beans.factory.ConfigurableListableBeanFactory;
 import com.bwf.core.beans.resource.EncodedResource;
 import com.bwf.core.exception.BeanDefinitionStoreException;
 
+import java.lang.annotation.Annotation;
 import java.util.List;
 
 public interface BeanDefinitionReader {
     @Nullable
-    ClassLoader getBeanClassLoader();
+    String[] getBeanPathArr();
     int loadBeanDefinitions(List<BeanDefinitionDocument> bdreList, int source) throws BeanDefinitionStoreException;
     int loadBeanDefinitions(BeanDefinitionDocument bdre) throws BeanDefinitionStoreException;
     int loadBeanDefinitions(EncodedResource resource) throws BeanDefinitionStoreException;

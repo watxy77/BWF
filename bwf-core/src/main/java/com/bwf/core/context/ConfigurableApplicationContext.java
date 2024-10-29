@@ -3,6 +3,8 @@ package com.bwf.core.context;
 import com.bwf.common.annotation.Lifecycle;
 import com.bwf.common.annotation.bootstrap.annotation.Nullable;
 import com.bwf.core.beans.factory.ConfigurableListableBeanFactory;
+import com.bwf.core.beans.reader.BeanDefinitionReader;
+import com.bwf.core.exception.BeanDefinitionStoreException;
 
 
 import java.io.Closeable;
@@ -20,5 +22,6 @@ public interface ConfigurableApplicationContext extends ApplicationContext, Life
     void close();
     void destroy();
     ConfigurableListableBeanFactory getBeanFactory() throws IllegalStateException;
+    void registerBeanDefinitionReader(BeanDefinitionReader bdr);
 
 }
