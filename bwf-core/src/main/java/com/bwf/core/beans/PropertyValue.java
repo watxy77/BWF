@@ -12,6 +12,8 @@ public class PropertyValue implements Comparable<PropertyValue>,Serializable{
     @Nullable
     private Object value;
     private int weight;
+    @Nullable
+    private String version;
 
     public String getName() {
         return name;
@@ -42,6 +44,15 @@ public class PropertyValue implements Comparable<PropertyValue>,Serializable{
         this.name = name;
         this.value = value;
         this.weight = weight;
+    }
+
+    @Nullable
+    public String getVersion() {
+        return version;
+    }
+
+    public void setVersion(@Nullable String version) {
+        this.version = version;
     }
 
     @Override

@@ -1,4 +1,4 @@
-package com.bwf.core.proxy;
+package com.bwf.core.beans.proxy;
 
 import com.bwf.common.annotation.bootstrap.BWFBeanDefinition;
 

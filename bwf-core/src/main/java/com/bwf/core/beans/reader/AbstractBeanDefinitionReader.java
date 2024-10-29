@@ -1,17 +1,14 @@
 package com.bwf.core.beans.reader;
 
 import com.bwf.common.annotation.bootstrap.annotation.Nullable;
-import com.bwf.core.beans.AbstractBeanFactory;
-import com.bwf.core.beans.BWFNodeBeanFactory;
 import com.bwf.core.beans.BeanNodeEnum;
 import com.bwf.core.beans.PropertyValue;
-import com.bwf.core.beans.chain.GroovyChainHandler;
-import com.bwf.core.beans.chain.NodeChainHandler;
+import com.bwf.core.beans.proxy.groovy.GroovyNodeProxy;
+import com.bwf.core.beans.proxy.NodeProxy;
 import com.bwf.core.beans.factory.ConfigurableListableBeanFactory;
 import com.bwf.core.exception.BeanDefinitionStoreException;
 import com.bwf.core.io.Resource;
 
-import java.lang.annotation.Annotation;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
@@ -76,18 +73,18 @@ public abstract class AbstractBeanDefinitionReader implements BeanDefinitionRead
         if(bdd.getPropertyValue() != null && bdd.getPropertyValue().size() > 0){
             //执行按权重排序
             Collections.sort(bdd.getPropertyValue());
-            NodeChainHandler firstHandler = null;
-            NodeChainHandler nextHandler = null;
+            NodeProxy firstHandler = null;
+            NodeProxy nextHandler = null;
             for (PropertyValue propertyValue : bdd.getPropertyValue()) {
                 if(BeanNodeEnum.NODE_GROOVY.getCode() == bdd.getBeanType()){
-                    NodeChainHandler nodeChainHandler = new GroovyChainHandler(propertyValue);
+                    NodeProxy nodeProxy = new GroovyNodeProxy(propertyValue);
                     if(nextHandler != null){
-                        nextHandler.setNext(nodeChainHandler);
+                        nextHandler.setNext(nodeProxy);
                     }else{
-                        firstHandler = nodeChainHandler;
+                        firstHandler = nodeProxy;
                     }
-                    nextHandler = nodeChainHandler;
-                    bdd.addNodeChainHandlerList(nodeChainHandler);
+                    nextHandler = nodeProxy;
+                    bdd.addNodeChainHandlerList(nodeProxy);
                 }
             }
             bdd.setFirstChainHandler(firstHandler);

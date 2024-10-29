@@ -8,7 +8,7 @@
       "proxyClass": "",
       "isSingleton": true,
       "propertyValue": [
-        {"name": "a1", "value": "aaa", "weight": 3},
+        {"name": "a1", "value": "System.out.println(\"record\");", "weight": 3},
         {"name": "a2", "value": "bbb", "weight": 23},
         {"name": "a3", "value": "ccc", "weight": 2}
       ]

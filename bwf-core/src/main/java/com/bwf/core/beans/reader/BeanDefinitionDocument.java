@@ -1,7 +1,7 @@
 package com.bwf.core.beans.reader;
 
 import com.bwf.core.beans.PropertyValue;
-import com.bwf.core.beans.chain.NodeChainHandler;
+import com.bwf.core.beans.proxy.NodeProxy;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -17,13 +17,13 @@ public class BeanDefinitionDocument {
     private String proxyClass;
     private boolean isSingleton;
     private List<PropertyValue> propertyValue;
-    private NodeChainHandler firstChainHandler;
-    private List<NodeChainHandler> nodeChainHandlerList;
+    private NodeProxy firstChainHandler;
+    private List<NodeProxy> nodeProxyList;
 
 
 
     public BeanDefinitionDocument() {
-        nodeChainHandlerList = new ArrayList<>();
+        nodeProxyList = new ArrayList<>();
     }
 
     public String getBeanId() {
@@ -106,19 +106,19 @@ public class BeanDefinitionDocument {
         this.propertyValue = propertyValue;
     }
 
-    public NodeChainHandler getFirstChainHandler() {
+    public NodeProxy getFirstChainHandler() {
         return firstChainHandler;
     }
 
-    public void setFirstChainHandler(NodeChainHandler firstChainHandler) {
+    public void setFirstChainHandler(NodeProxy firstChainHandler) {
         this.firstChainHandler = firstChainHandler;
     }
 
-    public List<NodeChainHandler> getNodeChainHandlerList() {
-        return nodeChainHandlerList;
+    public List<NodeProxy> getNodeChainHandlerList() {
+        return nodeProxyList;
     }
 
-    public void addNodeChainHandlerList(NodeChainHandler nodeChainHandler) {
-        this.nodeChainHandlerList.add(nodeChainHandler);
+    public void addNodeChainHandlerList(NodeProxy nodeProxy) {
+        this.nodeProxyList.add(nodeProxy);
     }
 }

@@ -1,30 +1,36 @@
-package com.bwf.core.beans.chain;
+package com.bwf.core.beans.proxy.js;
 
 import com.bwf.core.beans.PropertyValue;
+import com.bwf.core.beans.proxy.NodeProxy;
 
-public class JSChainHandler implements NodeChainHandler{
+public class JSNodeProxy implements NodeProxy {
     private PropertyValue propertyValue;
-    private NodeChainHandler nextHandler;
+    private NodeProxy nextHandler;
 
-    public JSChainHandler(PropertyValue propertyValue) {
+    public JSNodeProxy(PropertyValue propertyValue) {
         doInit(propertyValue);
     }
 
     @Override
-    public NodeChainHandler setNext(NodeChainHandler handler) {
+    public NodeProxy setNext(NodeProxy handler) {
         return this.nextHandler = handler;
     }
 
     @Override
-    public void chainHandle(Object object) {
+    public void invoke(Object object) {
         System.out.println("【js】" + propertyValue.getValue());
         if(nextHandler != null){
-            nextHandler.chainHandle(object);
+            nextHandler.invoke(object);
         }
     }
 
     @Override
     public void doInit(PropertyValue propertyValue) {
         this.propertyValue = propertyValue;
+    }
+
+    @Override
+    public void updatePV(PropertyValue propertyValue) {
+
     }
 }
