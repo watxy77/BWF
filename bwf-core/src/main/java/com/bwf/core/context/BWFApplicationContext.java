@@ -11,6 +11,8 @@ import com.bwf.core.eventbus.model.EventEnum;
 import com.bwf.core.eventbus.subscription.NodeHandleSub;
 import com.bwf.core.exception.BeansException;
 import com.bwf.core.io.ResourceLoader;
+import lombok.extern.slf4j.Slf4j;
+
 
 import java.time.Duration;
 
@@ -18,6 +20,8 @@ import java.time.Duration;
  * @Author bjweijiannan
  * @description
  */
+
+@Slf4j
 public class BWFApplicationContext extends AbstractApplicationContext{
     private boolean registerShutdownHook = true;
     private static BWFEventMessageBus eventMessageBusInstance;
@@ -47,8 +51,9 @@ public class BWFApplicationContext extends AbstractApplicationContext{
 //                    shutdownHook.registerApplicationContext(context);
                 }
                 super.refresh();
+
                 /**打印启动日志*/
-                System.out.println(StartupInfoLogger.lodeBeanMessage());
+                log.info(StartupInfoLogger.lodeBeanMessage().toString());
             }else{
                 throw new NullPointerException("未发现BWFApplication注解类，无法初始化BWF框架。请在main启动函数类上添加！");
             }
@@ -73,7 +78,7 @@ public class BWFApplicationContext extends AbstractApplicationContext{
     protected void refreshBeanFactory() throws BeansException, IllegalStateException {
         //创建BeanFactory对象
 //        this.bwfComponentBeanFactory = new BWFComponentBeanFactory();
-        this.nodeBeanFactory = new BWFNodeBeanFactory();
+        this.nodeBeanFactory = BWFNodeBeanFactory.getInstance();
         this.eventMessageBusInstance = BWFEventMessageBus.getInstance();
         this.eventMessageBusInstance.setPubEvent(EventEnum.NODE_HANDLE_SUB.getCode(), new NodeHandleSub());
         //注入系统ComponentBean eventMessageBus到BWFComponent集合中

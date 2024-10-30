@@ -5,7 +5,7 @@ import com.bwf.common.annotation.bootstrap.BWFInitializingBean;
 import com.bwf.core.beans.factory.annotation.BWFAutowired;
 import com.bwf.common.annotation.bootstrap.annotation.BWFComponent;
 import com.bwf.common.manager.BWFAnnotationManager;
-import com.bwf.common.utils.StringUtils;
+import com.bwf.common.utils.StringUtil;
 
 
 import java.lang.reflect.Field;
@@ -91,7 +91,7 @@ public class BWFComponentManager_1 implements BWFAnnotationManager {
         BWFComponent declaredAnnotations = (BWFComponent) clazz.getDeclaredAnnotation(BWFComponent.class);
         String beanName = declaredAnnotations.value();
         //如果beanName没有设置,获取名称
-        if(StringUtils.isEmpty(beanName)){
+        if(StringUtil.isEmpty(beanName)){
             int startIndex = className.lastIndexOf(".");
             beanName = className.substring(startIndex + 1, className.length());
         }

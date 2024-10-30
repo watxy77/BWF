@@ -12,7 +12,6 @@ public class BeanDefinitionDocument {
     private int beanType;
     private int source;
     private String classPath;
-    private String tClassPath;
     private String className;
     private String proxyClass;
     private boolean isSingleton;
@@ -64,14 +63,6 @@ public class BeanDefinitionDocument {
 
     public void setClassPath(String classPath) {
         this.classPath = classPath;
-    }
-
-    public String gettClassPath() {
-        return tClassPath;
-    }
-
-    public void settClassPath(String tClassPath) {
-        this.tClassPath = tClassPath;
     }
 
     public String getClassName() {

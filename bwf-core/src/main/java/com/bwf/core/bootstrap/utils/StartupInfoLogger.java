@@ -32,7 +32,7 @@ public class StartupInfoLogger {
         message.append("Started ");
         this.appendApplicationName(message);
         message.append(" in ");
-        message.append((double)timeTakenToStartup.toMillis() / 1000.0D);
+        message.append((double)timeTakenToStartup.toMillis() / 1000.0D );
         message.append(" seconds");
 
         try {
@@ -47,7 +47,7 @@ public class StartupInfoLogger {
         StringBuilder message = new StringBuilder();
         message.append("Complete Load Plugin");
         message.append(" in ");
-        message.append((double)timeTakenToStartup.toMillis() / 1000.0D);
+        message.append((double)timeTakenToStartup.toMillis() / 1000.0D );
         message.append(" seconds");
         message.append(" \n");
         message.append("API Plugin Amount ："+ apiPluginCount);

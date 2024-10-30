@@ -4,7 +4,6 @@ import com.bwf.core.beans.factory.BeanDefinitionRegistry;
 import com.bwf.common.annotation.bootstrap.annotation.Nullable;
 import com.bwf.core.beans.factory.BeanFactory;
 import com.bwf.core.beans.reader.BeanDefinitionDocument;
-import com.bwf.core.beans.reader.BeanDefinitionReader;
 import com.bwf.core.beans.utils.BeanUtil;
 import com.bwf.core.bootstrap.utils.StartupInfoLogger;
 import com.bwf.core.exception.BeanDefinitionStoreException;
@@ -125,7 +124,7 @@ public abstract class AbstractBeanFactory extends DefaultSingletonBeanRegistry i
 //                previous = mbd;
                     mbd.setBeanName(beanName);
                     mbd.setBeanClassName(className);
-                    mbd.setBeanInstance(mbd.getBeanClass().newInstance());
+                    mbd.setBeanInstance(BeanUtil.newInstance(mbd.getBeanClass()));
                     this.mergedBeanDefinitions.put(beanName, mbd);
                 }
             }catch (Exception e){

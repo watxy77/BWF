@@ -35,7 +35,7 @@ public class RootBeanDefinition implements BeanDefinition, Cloneable{
     }
 
     @Nullable
-    public Class getBeanClass() {
+    public Class<?> getBeanClass() {
         if (beanClass == null){
             try {
                 beanClass = Class.forName(className);

@@ -4,7 +4,6 @@ import com.bwf.common.annotation.bootstrap.annotation.*;
 
 import com.bwf.core.beans.factory.ConfigurableListableBeanFactory;
 import com.bwf.core.beans.reader.BeanDefinitionReader;
-import com.bwf.core.beans.reader.BeanReaderEnum;
 import com.bwf.core.beans.reader.resolver.AnnotationBeanDefinitionReaderResolver;
 import com.bwf.core.beans.reader.resolver.JSONBeanDefinitionReaderResolver;
 import com.bwf.core.beans.reader.resolver.XMLBeanDefinitionReaderResolver;
@@ -16,7 +15,6 @@ import com.bwf.core.bootstrap.utils.StartupInfoLogger;
 import com.bwf.core.exception.BeansException;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
-import sun.reflect.annotation.*;
 
 public abstract class AbstractApplicationContext implements ConfigurableApplicationContext{
     private String id = ClassUtils.identityToString(this);
@@ -198,7 +196,7 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
     }
 
     protected void prepareRefresh() {
-        this.startupDate = System.currentTimeMillis();
+        this.startupDate = System.nanoTime();
         this.closed.set(false);
         this.active.set(true);
         this.primarySources = new LinkedHashSet(Arrays.asList(primarySources));

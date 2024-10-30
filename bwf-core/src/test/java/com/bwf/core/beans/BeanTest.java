@@ -1,10 +1,13 @@
-package com.bwf.core.beans.chain;
+package com.bwf.core.beans;
 
-import com.bwf.core.beans.PropertyValue;
 import com.bwf.core.beans.proxy.groovy.GroovyNodeProxy;
+import org.junit.Test;
 
-public class test {
-    public static void main(String[] args) {
+import static junit.framework.TestCase.assertNotNull;
+
+public class BeanTest {
+    @Test
+    public void createChainTest(){
         PropertyValue pv1 = new PropertyValue("a1", "System.out.println(record);", 1);
         PropertyValue pv2 = new PropertyValue("a2", "bbb", 76);
         PropertyValue pv3 = new PropertyValue("a3", "ccc", 26);
@@ -19,6 +22,5 @@ public class test {
         PropertyValue pvx = new PropertyValue("a1", "System.out.println(\"kkkk\");", 1);
         jsHandlerProxy.updatePV(pvx);
         groovyNodeProxy.invoke(null);
-
     }
 }

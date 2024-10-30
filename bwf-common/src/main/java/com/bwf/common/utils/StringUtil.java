@@ -5,7 +5,7 @@ import org.apache.commons.collections.CollectionUtils;
 
 import java.util.Collection;
 
-public class StringUtils {
+public class StringUtil {
     private static final String[] EMPTY_STRING_ARRAY = {};
     public static String[] toStringArray(@Nullable Collection<String> collection) {
         return (!CollectionUtils.isEmpty(collection) ? collection.toArray(EMPTY_STRING_ARRAY) : EMPTY_STRING_ARRAY);
@@ -16,7 +16,7 @@ public class StringUtils {
     }
 
     public static boolean isNotEmpty(String str) {
-        return !StringUtils.isEmpty(str);
+        return !StringUtil.isEmpty(str);
     }
 
     public static String replace(String inString, String oldPattern, @Nullable String newPattern) {

@@ -1,12 +1,12 @@
 package com.bwf.core.eventbus;
 
-import com.bwf.common.annotation.bootstrap.BWFInitializingBean;
-import com.bwf.common.annotation.bootstrap.annotation.BWFComponent;
 import com.bwf.core.eventbus.IEventCallBack.*;
 import com.bwf.core.eventbus.IEventSub.IEventSub;
 import com.bwf.core.eventbus.IEventSub.IEventSubArgs;
 import com.bwf.core.eventbus.IEventSub.IEventSubArgsAndObject;
 import com.bwf.core.eventbus.IEventSub.IEventSubObject;
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -17,20 +17,20 @@ import java.util.concurrent.Executors;
  * @Author bjweijiannan
  * @description
  */
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class BWFEventMessageBus implements IEventMessageBus {
     private final ConcurrentHashMap<String, List<EventCallBack>> appletEventBus = new ConcurrentHashMap<>();
     private final ExecutorService threadPool = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
+    public static BWFEventMessageBus getInstance(){
+        return ContainerHolder.HOLDER.instance;
+    }
 
-    private volatile static BWFEventMessageBus BWFEventMessageBus;
-    public static BWFEventMessageBus getInstance() {
-        if (null == BWFEventMessageBus) {
-            synchronized (BWFEventMessageBus.class) {
-                if (null == BWFEventMessageBus) {
-                    BWFEventMessageBus = new BWFEventMessageBus();
-                }
-            }
+    private enum ContainerHolder{
+        HOLDER;
+        private BWFEventMessageBus instance;
+        ContainerHolder(){
+            instance = new BWFEventMessageBus();
         }
-        return BWFEventMessageBus;
     }
 
     @Override
@@ -131,21 +131,20 @@ public class BWFEventMessageBus implements IEventMessageBus {
     @Override
     public void setPubEvent(String eventName, Object object) {
         if (object instanceof IEventSubArgs){
-            this.BWFEventMessageBus.bind(eventName, (IEventSubArgs)object);
+            ContainerHolder.HOLDER.instance.bind(eventName, (IEventSubArgs)object);
         }else if (object instanceof IEventSub){
-            this.BWFEventMessageBus.bind(eventName, (IEventSub)object);
+            ContainerHolder.HOLDER.instance.bind(eventName, (IEventSub)object);
         }else if (object instanceof IEventSubObject){
-            this.BWFEventMessageBus.bind(eventName, (IEventSubObject)object);
+            ContainerHolder.HOLDER.instance.bind(eventName, (IEventSubObject)object);
         }else if (object instanceof IEventSubArgsAndObject){
-            this.BWFEventMessageBus.bind(eventName, (IEventSubArgsAndObject)object);
+            ContainerHolder.HOLDER.instance.bind(eventName, (IEventSubArgsAndObject)object);
         }else{
         }
     }
 
     @Override
     public void setSubEvent(String eventName, Object object) {
-        this.BWFEventMessageBus.emit(eventName, object);
-
+        ContainerHolder.HOLDER.instance.emit(eventName, object);
     }
 
 
